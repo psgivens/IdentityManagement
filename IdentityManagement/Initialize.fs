@@ -17,6 +17,8 @@ open Common.FSharp.Actors
 open IdentityManagement.Domain.DAL.IdentityManagementEventStore
 open Common.FSharp.Actors.Infrastructure
 
+open IdentityManagement.Domain.DAL.Database
+
 type ActorGroups = {
     UserManagementActors:ActorIO<UserManagementCommand>
     // MemberManagementActors:ActorIO<MemberManagementCommand>
@@ -80,7 +82,6 @@ let composeActors system =
     { UserManagementActors=userManagementActors
     }
 
-open IdentityManagement.Domain.DAL.Database
 
 let initialize () = 
     // System set up
@@ -89,4 +90,24 @@ let initialize () =
     let system = Configuration.defaultConfig () |> System.create "sample-system"
             
     let actorGroups = composeActors system
+
+    let userCommandRequestReplyCanceled = 
+        RequestReplyActor.spawnRequestReplyActor<UserManagementCommand,unit> 
+            system "user_management_command" actorGroups.UserManagementActors
+
+    { 
+        FirstName="Phillip"
+        LastName="Givens"
+        Email="one@three.com"
+    }
+    |> UserManagementCommand.Create
+    |> envelopWithDefaults
+        (UserId.create ())
+        (TransId.create ())
+        (StreamId.create ())
+        (Version.box 0s)
+    |> userCommandRequestReplyCanceled.Ask
+    |> Async.AwaitTask
+    |> ignore
+
     actorGroups

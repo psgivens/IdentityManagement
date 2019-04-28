@@ -14,6 +14,8 @@ open System
 
 open Common.FSharp.Suave
 
+open IdentityManagement.Initialize
+
 let greetings q =
   defaultArg (Option.ofChoice (q ^^ "name")) "World" |> sprintf "Hello %s"
 
@@ -80,5 +82,6 @@ let app =
 
 [<EntryPoint>]
 let main argv =
+    initialize () |> ignore
     startWebServer defaultConfig app
     0

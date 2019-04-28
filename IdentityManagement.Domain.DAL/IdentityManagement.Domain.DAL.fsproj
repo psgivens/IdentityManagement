@@ -8,7 +8,6 @@
     <ProjectReference Include="..\..\Common.FSharp\Common.FSharp\Common.FSharp.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Library.fs" />
     <Compile Include="MemberManagement.fs" />
     <Compile Include="EventSourcing.fs" />
     <Compile Include="Database.fs" />
