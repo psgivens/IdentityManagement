@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common.FSharp\Common.FSharp\Common.FSharp.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DomainTypes.fs" />
+    <Compile Include="UserManagement.fs" />
+  </ItemGroup>
+</Project>

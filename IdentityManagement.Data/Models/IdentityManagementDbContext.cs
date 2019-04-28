@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace IdentityManagement.Models {
+namespace IdentityManagement.Data.Models {
     public class IdentityManagementDbContext : DbContext {
         public IdentityManagementDbContext (DbContextOptions<IdentityManagementDbContext> options) : base (options) { }
         public IdentityManagementDbContext () { }
