@@ -8,9 +8,11 @@
     <ProjectReference Include="..\..\Common.FSharp\Common.FSharp\Common.FSharp.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MemberManagement.fs" />
-    <Compile Include="EventSourcing.fs" />
-    <Compile Include="Database.fs" />
+    <Compile Include="src/GroupManagement.fs" />
+    <Compile Include="src/UserManagement.fs" />
+    <Compile Include="src/RoleManagement.fs" />
+    <Compile Include="src/EventSourcing.fs" />
+    <Compile Include="src/Database.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="newtonsoft.json" Version="12.0.2" />

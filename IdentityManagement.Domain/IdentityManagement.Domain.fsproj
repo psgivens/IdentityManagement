@@ -6,7 +6,9 @@
     <ProjectReference Include="..\..\Common.FSharp\Common.FSharp\Common.FSharp.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DomainTypes.fs" />
-    <Compile Include="UserManagement.fs" />
+    <Compile Include="src/DomainTypes.fs" />
+    <Compile Include="src/UserManagement.fs" />
+    <Compile Include="src/GroupManagement.fs" />
+    <Compile Include="src/RoleManagement.fs" />
   </ItemGroup>
 </Project>

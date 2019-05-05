@@ -5,8 +5,6 @@ open Common.FSharp.Envelopes
 open IdentityManagement.Domain.DomainTypes
 open IdentityManagement.Domain.UserManagement
 
-open Newtonsoft.Json
-
 let defaultDT = "1/1/1900" |> System.DateTime.Parse
 let persist (userId:UserId) (streamId:StreamId) (state:UserManagementState option) =
     use context = new IdentityManagementDbContext () 
@@ -40,9 +38,9 @@ let find (userId:UserId) (streamId:StreamId) =
     use context = new IdentityManagementDbContext () 
     context.Users.Find (StreamId.unbox streamId)
 
-let findMemberByEmail email =
+let findUserByEmail email =
     use context = new IdentityManagementDbContext () 
-    query { for clubMember in context.Users do            
-            where (clubMember.Email = email)
-            select clubMember
+    query { for user in context.Users do            
+            where (user.Email = email)
+            select user
             exactlyOne }

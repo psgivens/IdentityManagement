@@ -11,6 +11,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "IdentityManagement.Domain",
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "IdentityManagement.Domain.DAL", "IdentityManagement.Domain.DAL\IdentityManagement.Domain.DAL.fsproj", "{9D6B8E67-A864-4BB0-9792-D9AA29C00326}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "IdentityManagement.UnitTests", "IdentityManagement.UnitTests\IdentityManagement.UnitTests.fsproj", "{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,17 @@ Global
 		{9D6B8E67-A864-4BB0-9792-D9AA29C00326}.Release|x64.Build.0 = Release|Any CPU
 		{9D6B8E67-A864-4BB0-9792-D9AA29C00326}.Release|x86.ActiveCfg = Release|Any CPU
 		{9D6B8E67-A864-4BB0-9792-D9AA29C00326}.Release|x86.Build.0 = Release|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Debug|x64.Build.0 = Debug|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Debug|x86.Build.0 = Debug|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Release|x64.ActiveCfg = Release|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Release|x64.Build.0 = Release|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Release|x86.ActiveCfg = Release|Any CPU
+		{7932E2B9-788B-43DD-BCD2-D0A1F3944F29}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

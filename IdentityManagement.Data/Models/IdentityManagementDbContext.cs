@@ -9,7 +9,10 @@ namespace IdentityManagement.Data.Models {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         { 
             // FIXME: Pull this information from somewhere else
-            var connectionString = "User ID=samplesam;Password=Password1;Host=localhost;Port=5432;Database=IdentityManagementDb;Pooling=true;";
+            // https://stackoverflow.com/questions/52156484/how-exactly-does-microsoft-extensions-configuration-dependent-on-asp-net-core
+            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-2.1
+            // https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.jsonconfigurationextensions.addjsonfile?view=aspnetcore-2.2#Microsoft_Extensions_Configuration_JsonConfigurationExtensions_AddJsonFile_Microsoft_Extensions_Configuration_IConfigurationBuilder_System_String_
+            var connectionString = "User ID=samplesam;Password=Password1;Host=pomodoro-pgsql;Port=5432;Database=IdentityManagementDb;Pooling=true;";
             optionsBuilder.UseNpgsql(connectionString);
         }
 
@@ -22,6 +25,10 @@ namespace IdentityManagement.Data.Models {
             modelBuilder
                 .Entity<GroupPrincipalMap>()
                 .HasKey(e => new { e.GroupId, e.PrincipalId });
+
+            modelBuilder
+                .Entity<RolePrincipalMap>()
+                .HasKey(e => new { e.RoleId, e.PrincipalId });
 
             // Some samples from the Toastmasters example. 
             
@@ -44,5 +51,8 @@ namespace IdentityManagement.Data.Models {
         public virtual DbSet<Principal> Principals { get; set; }
         public virtual DbSet<Group> Groups { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<GroupPrincipalMap> GroupPrincipalMaps { get; set; }
+        public virtual DbSet<RolePrincipalMap> RolePrincipalMaps { get; set; }
+
     }
 }

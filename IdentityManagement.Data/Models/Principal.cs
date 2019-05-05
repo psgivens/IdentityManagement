@@ -1,4 +1,4 @@
-
+  
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,7 +8,6 @@ namespace IdentityManagement.Data.Models
     {
         [Key]
         public System.Guid Id { get; set; }
-        public IList<GroupPrincipalMap> EncapsulatingGroups { get; set; }
     }
 
     public class User : Principal
@@ -21,7 +20,7 @@ namespace IdentityManagement.Data.Models
     public class Group : Principal
     {
         public string Name { get; set; }
-        public IList<GroupPrincipalMap> MemberRelations { get; set; }
+        public IList<GroupPrincipalMap> MemberRelations { get; set; } = new List<GroupPrincipalMap> ();
     }
 
     public class GroupPrincipalMap
@@ -33,12 +32,22 @@ namespace IdentityManagement.Data.Models
         public Group Group { get; set; }
     }
 
-
     public class Role
     {
         [Key]
         public System.Guid Id { get; set; }
+        public System.Guid ExternalId { get; set; }
         public string Name { get; set; }
-        public IList<Principal> Members { get; set; }
+        public IList<RolePrincipalMap> Members { get; set; } = new List<RolePrincipalMap>();
     }
+
+    public class RolePrincipalMap
+    {
+        public System.Guid PrincipalId { get; set; }
+        public Principal Principal { get; set; }
+
+        public System.Guid RoleId { get; set; }
+        public Role Role { get; set; }
+    }
+
 }
