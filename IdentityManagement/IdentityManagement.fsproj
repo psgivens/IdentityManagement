@@ -15,6 +15,7 @@
     <Compile Include="src/ProcessingSystem.fs" />
     <Compile Include="src/RestQuery.fs" />
     <Compile Include="src/UserCommands.fs" />
+    <Compile Include="src/RoleCommands.fs" />
     <Compile Include="src/GroupCommands.fs" />
     <Compile Include="src/Program.fs" />
   </ItemGroup>

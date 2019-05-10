@@ -8,6 +8,8 @@ type UserContext = {
   TransId: string
 }
 
+let inline private noMatch (ctx:HttpContext) = async.Return Option<HttpContext>.None
+
 let inline private addContext (item:UserContext) ctx = 
   { ctx with userState = ctx.userState |> Map.add "user_context" (box item) }
 
@@ -30,6 +32,22 @@ let verifyheadersAsync<'a> (protectedPart:WebPart<HttpContext>) ctx =
 let verifyheaders (protectedPart:WebPart<HttpContext>) = 
   verifyheadersAsync protectedPart
 
+
+let authenticationHeaders (p:HttpRequest) = 
+  let h = 
+    ["user_id"; "transaction_id"]
+    |> List.map (p.header >> Option.ofChoice)
+  
+  match h with
+  | [Some userId; Some transId] -> 
+    addContext { UserId= userId; TransId=transId } 
+    >> Some 
+    >> async.Return
+  | _ -> noMatch
+
+
+
+
 open Newtonsoft.Json
 open Newtonsoft.Json.Serialization
 
@@ -50,3 +68,11 @@ let getResourceFromReq<'a> (req : HttpRequest) =
   let getString (rawForm:byte []) =
     System.Text.Encoding.UTF8.GetString rawForm
   req.rawForm |> getString |> fromJson<'a>
+
+
+
+type Foo =
+  { foo : string }
+
+type Bar =
+  { bar : string }

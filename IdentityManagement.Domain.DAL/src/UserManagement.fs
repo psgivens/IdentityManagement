@@ -34,6 +34,18 @@ let execQuery (q:IdentityManagementDbContext -> System.Linq.IQueryable<'a>) =
     q context
     |> Seq.toList
 
+let getAllUsers () =
+    execQuery (fun ctx -> ctx.Users :> System.Linq.IQueryable<User>)
+
+let getHeadUser () =
+    execQuery (fun ctx -> 
+        query { 
+            for user in ctx.Users do
+            select user
+        })
+    |> Seq.head
+
+
 let find (userId:UserId) (streamId:StreamId) =
     use context = new IdentityManagementDbContext () 
     context.Users.Find (StreamId.unbox streamId)

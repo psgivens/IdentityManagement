@@ -20,21 +20,36 @@ open IdentityManagement.Domain.UserManagement
 
 open IdentityManagement.UserCommands
 open IdentityManagement.GroupCommands
+open IdentityManagement.RestQuery
+
 
 let app =
-  verifyheaders 
-    <| choose
-        [ GET >=> pathCi "/" >=> OK "Hello Dave"
-          GET >=> choose
-            [ pathCi "/users" >=> OK "Should return users" 
+  choose 
+    [ request authenticationHeaders >=> choose
+        [ GET >=> choose
+            [ pathCi "/" >=> OK "Default route"
+              pathCi "/users" >=> (getUsers |> Suave.Http.context) 
+              pathScanCi "/users/%s" getUser
             ]
-          pathCi "/users" >=> handleUserPost
-          pathScanCi "/users/%s" handleUpdateUser
-          pathCi "/groups" >=> handleGroupPost
-          pathScanCi "/groups/%s/users/%s" <| handleUpdateGroup "users" 
-          pathScanCi "/groups/%s/subgroups/%s" <| handleUpdateGroup "subgroups"
-          BAD_REQUEST "Perhaps you left off the headers"
+          POST >=> choose 
+            [ pathCi "/users" >=> handleUserPost
+              pathCi "/groups" >=> handleGroupPost
+              pathScanCi "/groups/%s/users/%s" <| handleUpdateGroup "users" 
+              pathScanCi "/groups/%s/subgroups/%s" <| handleUpdateGroup "subgroups"
+            ]
+          PUT >=> choose
+            [ pathScanCi "/users/%s" handleUpdateUser
+            ]
+          DELETE >=> choose
+            [ pathCi "/users" >=> handleUserPost
+              pathCi "/groups" >=> handleGroupPost                           
+              pathScanCi "/groups/%s/users/%s" <| handleUpdateGroup "users" 
+              pathScanCi "/groups/%s/subgroups/%s" <| handleUpdateGroup "subgroups"
+            ]
+          BAD_REQUEST "Request path was not found"
         ]
+      BAD_REQUEST "Request is missing authentication headers"    
+    ]
 
 let greetings q =
   defaultArg (Option.ofChoice (q ^^ "name")) "World" |> sprintf "Hello %s"
@@ -60,7 +75,7 @@ let addUserMessage (message : string) : WebPart =
 let main argv =
     printfn "main argv"
 
-    let config = { defaultConfig with  bindings = [ HttpBinding.createSimple HTTP "0.0.0.0" 8080 ]}
+    let config = { defaultConfig with  bindings = [ HttpBinding.createSimple HTTP "127.0.0.1" 8080 ]}
 
     // System.Threading.Thread.Sleep (60 * 60 * 1000)
     startWebServer config app
