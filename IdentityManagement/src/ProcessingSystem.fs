@@ -115,28 +115,25 @@ let initialize () =
     let groupStreamId = StreamId.create ()
     printfn "Using group stream id: %A" groupStreamId
 
+    let runWaitAndIgnore = 
+        Async.AwaitTask
+        >> Async.Ignore
+        >> Async.RunSynchronously
+
+    let envelop streamId = envelopWithDefaults userId (TransId.create ()) streamId
+           
     GroupManagementCommand.Create "masters"
-    |> envelopWithDefaults
-        userId
-        (TransId.create ())
-        groupStreamId
+    |> envelop groupStreamId
     |> groupCommandRequestReplyCanceled.Ask
-    |> Async.AwaitTask
-    |> Async.Ignore
-    |> Async.RunSynchronously
+    |> runWaitAndIgnore
 
     let group = IdentityManagement.Domain.DAL.GroupManagement.findGroupByName "masters"
     printfn "Using group %s with groupId %A" group.Name group.Id
 
     GroupManagementCommand.AddUser (user.Id |> UserId.box)
-    |> envelopWithDefaults
-        userId
-        (TransId.create ())
-        groupStreamId
+    |> envelop groupStreamId
     |> groupCommandRequestReplyCanceled.Ask
-    |> Async.AwaitTask
-    |> Async.Ignore
-    |> Async.RunSynchronously
+    |> runWaitAndIgnore
 
     let roleName = "super users"
     let roleStreamId = StreamId.create ()
@@ -145,28 +142,18 @@ let initialize () =
     printfn "Creating role %s with external id %A" roleName externalRoleId
 
     (roleName, externalRoleId)
-    |> RoleManagement.Create
-    |> envelopWithDefaults
-        userId
-        (TransId.create ())
-        roleStreamId
+    |> RoleManagementCommand.Create
+    |> envelop roleStreamId
     |> roleCommandRequestReplyCanceled.Ask
-    |> Async.AwaitTask
-    |> Async.Ignore
-    |> Async.RunSynchronously
+    |> runWaitAndIgnore
 
     let role = IdentityManagement.Domain.DAL.RoleManagement.findRoleByName roleName
     printfn "Using Role %s with roleId %A and external id %A" role.Name role.Id role.ExternalId
 
     RoleManagementCommand.AddPrincipal group.Id
-    |> envelopWithDefaults
-        userId
-        (TransId.create ())
-        roleStreamId
+    |> envelop roleStreamId
     |> roleCommandRequestReplyCanceled.Ask
-    |> Async.AwaitTask
-    |> Async.Ignore
-    |> Async.RunSynchronously
+    |> runWaitAndIgnore
 
     printfn "Finished adding group to the role"
 
