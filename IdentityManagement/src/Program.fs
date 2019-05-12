@@ -28,36 +28,36 @@ let app =
             ]            
 
           // User commands
-          POST >=> pathCi "/users" >=> restWebPart postUser
-          PUT >=> pathScanCi "/users/%s" putUser
+          POST >=> pathCi "/users" >=> restful postUser
+          PUT >=> pathScanCi "/users/%s" (restfulPathScan putUser)
           DELETE >=> pathScanCi "/users/%s" deleteUser
 
           // Group commands
           POST >=> choose 
             [
-              pathCi "/groups" >=> restWebPart postNewGroup
-              pathScanCi "/groups/%s/users" addUserToGroup 
-              pathScanCi "/groups/%s/subgroups" addGroupToGroup
+              pathCi "/groups" >=> restful postNewGroup
+              pathScanCi "/groups/%s/users" (restfulPathScan addUserToGroup) 
+              pathScanCi "/groups/%s/subgroups" (restfulPathScan addGroupToGroup)
             ]
-          PUT >=> pathScanCi "/groups/%s" putGroup
+          PUT >=> pathScanCi "/groups/%s" (restfulPathScan putGroup)
           DELETE >=> choose
             [ 
               pathScanCi "/groups/%s" deleteGroup
-              pathScanCi "/groups/%s/users" removeUserFromGroup
-              pathScanCi "/groups/%s/subgroups" removeGroupFromGroup
+              pathScanCi "/groups/%s/users" (restfulPathScan removeUserFromGroup)
+              pathScanCi "/groups/%s/subgroups" (restfulPathScan removeGroupFromGroup)
             ]
 
           // Role commands
           POST >=> choose 
             [
-              pathCi "/roles" >=> postNewRole
-              pathScanCi "/roles/%s/members" addPrincipalToRole 
+              pathCi "/roles" >=> restful postNewRole
+              pathScanCi "/roles/%s/members" (restfulPathScan addPrincipalToRole)
             ]
-          PUT >=> pathScanCi "/roles/%s" putRole
+          PUT >=> pathScanCi "/roles/%s" (restfulPathScan putRole)
           DELETE >=> choose
             [ 
               pathScanCi "/roles/%s" deleteRole
-              pathScanCi "/roles/%s/users" removePrincipalFromRole
+              pathScanCi "/roles/%s/users" (restfulPathScan removePrincipalFromRole)
             ]
 
           // Role commands

@@ -16,95 +16,66 @@ open IdentityManagement.Domain
 open IdentityManagement.Dtos
 open IdentityManagement.ProcessingSystem
 
-// TODO: Redo this file to match the style of GroupCommands
-
 // http://blog.tamizhvendan.in/blog/2015/06/11/building-rest-api-in-fsharp-using-suave/
 
-let postNewRole (ctx:HttpContext) = 
-  let processRequest (dto:RoleDto) =
-    let newRoleId = StreamId.create ()
-    let (b,erid) = dto.ext_id |> System.Guid.TryParse
+let private tellActor = tellActor actorGroups.RoleManagementActors 
 
-    let send = 
-      envelopWithDefaults ctx newRoleId
-      >> actorGroups.RoleManagementActors.Tell
+let postNewRole (dto:RoleDto) = 
+  let newRoleId = StreamId.create ()
 
-    if b then 
-      (dto.name, erid)
-      |> RoleManagementCommand.Create 
-      |> send
-
-      newRoleId |> toJson |> OK
-    else 
-      noMatch
-
-  ctx |> restWebPart processRequest
+  match dto.ext_id |> System.Guid.TryParse with
+  | true, erid ->  
+    (dto.name, erid)
+    |> RoleManagementCommand.Create 
+    |> tellActor newRoleId
+    >=> 
+    (newRoleId 
+    |> sprintf "Role being created with id %A"
+    |> OK)
+  | _ -> noMatch
 
 
-let deleteRole (roleName:string) (ctx:HttpContext) =
+let deleteRole (roleName:string) =
   let role = DAL.RoleManagement.findRoleByName roleName
-  let send = 
-    envelopWithDefaults ctx (StreamId.box role.Id)
-    >> actorGroups.RoleManagementActors.Tell
 
-  RoleManagementCommand.Delete |> send
-
-  let webpart = 
-    OK "Role deleted"
+  RoleManagementCommand.Delete |> tellActor (StreamId.box role.Id)
+  >=>
+  OK "Role deleted"
   
-  ctx |> webpart
 
-let putRole (roleName:string) (ctx:HttpContext) =
+let putRole (roleName:string) (dto:RoleDto) =
   let role = DAL.RoleManagement.findRoleByName roleName
-  let send = 
-    envelopWithDefaults ctx (StreamId.box role.Id)
-    >> actorGroups.RoleManagementActors.Tell
 
-  let processRequest (dto:RoleDto) = 
-    dto.name
-    |> RoleManagementCommand.UpdateName
-    |> send
-
-    dto.name |> toJson |> OK
+  dto.name
+  |> RoleManagementCommand.UpdateName
+  |> tellActor (StreamId.box role.Id)
+  >=>
+  (dto.name |> toJson |> OK)
   
-  ctx |> restWebPart processRequest
 
-let addPrincipalToRole (roleName:string) (ctx:HttpContext) = 
+
+let addPrincipalToRole (roleName:string) (dto:RoleMemberDto) = 
   let role = DAL.RoleManagement.findRoleByName roleName
-  let send = 
-    envelopWithDefaults ctx (StreamId.box role.Id)
-    >> actorGroups.RoleManagementActors.Tell
 
-  let processRequest (dto:RoleMemberDto) =
-    let (us, uid) = dto.id |> System.Guid.TryParse
-    if us then
-      uid
-      |> RoleManagementCommand.AddPrincipal
-      |> send
-
-      uid |> toJson |> OK
-    else
-      noMatch
-
-  ctx |> restWebPart processRequest
+  match dto.id |> System.Guid.TryParse with
+  | true, uid ->
+    uid
+    |> RoleManagementCommand.AddPrincipal
+    |> tellActor (StreamId.box role.Id)
+    >=> 
+    (uid |> toJson |> OK)
+  | _ -> noMatch
 
 
-let removePrincipalFromRole (roleName:string) (ctx:HttpContext) = 
+let removePrincipalFromRole (roleName:string) (dto:UserDto) = 
   let role = DAL.RoleManagement.findRoleByName roleName
-  let send = 
-    envelopWithDefaults ctx (StreamId.box role.Id)
-    >> actorGroups.RoleManagementActors.Tell
   
-  let processRequest (dto:UserDto) =
-    let (us, uid) = dto.id |> System.Guid.TryParse
-    if us then
-      uid
-      |> RoleManagementCommand.RemovePrincipal
-      |> send
-      
-      uid |> toJson |> OK
-    else
-      noMatch
-
-  ctx |> restWebPart processRequest
+  match dto.id |> System.Guid.TryParse with
+  | true, uid ->
+    uid
+    |> RoleManagementCommand.RemovePrincipal
+    |> tellActor (StreamId.box role.Id)
+    >=>
+    (uid |> toJson |> OK)
+  | _ -> noMatch
 

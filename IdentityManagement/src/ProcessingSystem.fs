@@ -210,3 +210,10 @@ let envelopWithDefaults (ctx:HttpContext) =
     Common.FSharp.Envelopes.Envelope.envelopWithDefaults
         domainContext.UserId
         domainContext.TransId
+
+let tellActor<'a> (actor:ActorIO<'a>) (streamId:StreamId) (cmd:'a) (ctx:HttpContext) = 
+  cmd
+  |> envelopWithDefaults ctx streamId
+  |> actor.Tell
+  
+  ctx |> Some |> async.Return 

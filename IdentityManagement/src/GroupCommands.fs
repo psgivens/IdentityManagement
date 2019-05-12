@@ -20,128 +20,113 @@ open IdentityManagement.Domain
 
 // http://blog.tamizhvendan.in/blog/2015/06/11/building-rest-api-in-fsharp-using-suave/
 
-let private tellActor (streamId:StreamId) (cmd:GroupManagementCommand) (ctx:HttpContext) = 
-  cmd
-  |> envelopWithDefaults ctx streamId
-  |> actorGroups.GroupManagementActors.Tell
-  
-  ctx |> Some |> async.Return 
+let private tellActor = tellActor actorGroups.GroupManagementActors 
 
 let postNewGroup (dto:GroupDto) = 
   let newGroupId = StreamId.create ()
 
-  let actorWebPart =
+  let commandToActor =
     dto.name
     |> GroupManagementCommand.Create
     |> tellActor newGroupId
 
-  let responseWebPart = newGroupId |> toJson |> OK
+  let respond = newGroupId |> toJson |> OK
 
-  actorWebPart >=> responseWebPart
+  commandToActor >=> respond
 
 let deleteGroup (groupName:string) =
   let group = DAL.GroupManagement.findGroupByName groupName
 
-  let actorWebPart =
+  let commandToActor =
     GroupManagementCommand.Delete
     |> tellActor (StreamId.box group.Id)
   
-  actorWebPart >=> OK "Group deleted"
+  commandToActor >=> OK "Group deleted"
 
-let putGroup (groupName:string) =
+let putGroup (groupName:string) (dto:GroupDto) =
   let group = DAL.GroupManagement.findGroupByName groupName
 
-  let processRequest (dto:GroupDto) = 
-    let actorWebPart = 
-      dto.name
-      |> GroupManagementCommand.UpdateName
-      |> tellActor (StreamId.box group.Id)
-  
-    let responseWebPart = dto.name |> toJson |> OK
+  let commandToActor = 
+    dto.name
+    |> GroupManagementCommand.UpdateName
+    |> tellActor (StreamId.box group.Id)
 
-    actorWebPart >=> responseWebPart
+  let respond = dto.name |> toJson |> OK
 
-  restWebPart processRequest
+  commandToActor >=> respond
 
-let addUserToGroup (groupName:string) = 
+
+let addUserToGroup (groupName:string) (dto:UserDto) = 
   let group = DAL.GroupManagement.findGroupByName groupName
 
   let command uid = 
-    let actorWebPart = 
+    let commandToActor = 
       uid
       |> UserId.box
       |> GroupManagementCommand.AddUser
       |> tellActor (StreamId.box group.Id)
 
-    let responseWebPart = uid |> toJson |> OK
+    let respond = uid |> toJson |> OK
     
-    actorWebPart >=> responseWebPart
+    commandToActor >=> respond
 
-  let processRequest (dto:UserDto) =
-    match dto.id |> System.Guid.TryParse with
-    | true, uid -> command uid
-    | _-> noMatch
+  match dto.id |> System.Guid.TryParse with
+  | true, uid -> command uid
+  | _-> noMatch
 
-  restWebPart processRequest
 
-let addGroupToGroup (groupName:string) = 
+let addGroupToGroup (groupName:string) (dto:GroupDto) = 
   let group = DAL.GroupManagement.findGroupByName groupName
 
   let command gid =  
-    let actorWebPart = 
+    let commandToActor = 
       gid
       |> GroupManagementCommand.AddGroup
       |> tellActor (StreamId.box group.Id)
 
-    let responseWebPart = gid |> toJson |> OK
+    let respond = gid |> toJson |> OK
     
-    actorWebPart >=> responseWebPart
+    commandToActor >=> respond
 
-  let processRequest (dto:GroupDto) =
-    match dto.id |> System.Guid.TryParse with
-    | true, gid -> command gid
-    | _ -> noMatch
+  match dto.id |> System.Guid.TryParse with
+  | true, gid -> command gid
+  | _ -> noMatch
 
-  restWebPart processRequest
 
-let removeUserFromGroup (groupName:string) = 
+let removeUserFromGroup (groupName:string) (dto:UserDto) = 
   let group = DAL.GroupManagement.findGroupByName groupName
 
   let command uid =  
-    let actorWebPart =
+    let commandToActor =
       uid
       |> UserId.box
       |> GroupManagementCommand.RemoveUser
       |> tellActor (StreamId.box group.Id)
 
-    let responseWebPart = uid |> toJson |> OK
+    let respond = uid |> toJson |> OK
 
-    actorWebPart >=> responseWebPart
+    commandToActor >=> respond
   
-  let processRequest (dto:UserDto) =
-    match dto.id |> System.Guid.TryParse with
-    | true, uid -> command uid
-    | _ -> noMatch
+  match dto.id |> System.Guid.TryParse with
+  | true, uid -> command uid
+  | _ -> noMatch
 
-  restWebPart processRequest
 
-let removeGroupFromGroup (groupName:string) = 
+let removeGroupFromGroup (groupName:string) (dto:GroupDto) = 
   let group = DAL.GroupManagement.findGroupByName groupName
   
   let command gid =
-    let actorWebPart = 
+    let commandToActor = 
       gid
       |> GroupManagementCommand.RemoveGroup
       |> tellActor (StreamId.box group.Id)      
 
-    let responseWebPart = gid |> toJson |> OK
+    let respond = gid |> toJson |> OK
 
-    actorWebPart >=> responseWebPart
+    commandToActor >=> respond
 
-  let processRequest (dto:GroupDto) =
-    match dto.id |> System.Guid.TryParse with
-    | true, gid -> command gid
-    | _, _ -> noMatch
+  match dto.id |> System.Guid.TryParse with
+  | true, gid -> command gid
+  | _, _ -> noMatch
 
-  restWebPart processRequest
 

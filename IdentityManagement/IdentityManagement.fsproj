@@ -11,8 +11,8 @@
     <ProjectReference Include="..\..\Common.FSharp\Common.FSharp.Actors\Common.FSharp.Actors.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src/Dtos.fs" />
     <Compile Include="src/Microservices.fs" />
+    <Compile Include="src/Dtos.fs" />
     <Compile Include="src/ProcessingSystem.fs" />
     <Compile Include="src/RestQuery.fs" />
     <Compile Include="src/UserCommands.fs" />

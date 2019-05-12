@@ -24,56 +24,49 @@ let private dtoToUser dto =
       Email=dto.email
   }
 
-let private tellActor (streamId:StreamId) (cmd:UserManagementCommand) (ctx:HttpContext) = 
-  cmd
-  |> envelopWithDefaults ctx streamId
-  |> actorGroups.UserManagementActors.Tell
-  
-  ctx |> Some |> async.Return 
+let private tellActor = tellActor actorGroups.UserManagementActors 
 
 let postUser (dto:UserDto)=  
   let newUserId = StreamId.create ()
 
-  let actorWebPart = 
+  let commandToActor = 
     dto
     |> dtoToUser    
     |> UserManagementCommand.Create
     |> tellActor newUserId
 
-  let responseWebPart = newUserId |> toJson |> OK
+  let respond = newUserId |> toJson |> OK
 
-  actorWebPart >=> responseWebPart
+  commandToActor >=> respond
 
 
 let deactivateUser (user:User) = 
-  let actorWebPart = 
+  let commandToActor = 
     UserManagementCommand.Deactivate 
     |> tellActor (StreamId.box user.Id)
 
-  let responseWebPart = 
+  let respond = 
     OK (sprintf "Deactivating %s" (user.Id.ToString ()))
 
-  actorWebPart >=> responseWebPart
+  commandToActor >=> respond
 
 
 let putUser userEmail (dto:UserDto) =
-  let processRequest  = 
-    let user = DAL.UserManagement.findUserByEmail userEmail
+  let user = DAL.UserManagement.findUserByEmail userEmail
 
-    let actorWebPart = 
-      dto
-      |> dtoToUser
-      |> UserManagementCommand.Update
-      |> tellActor (StreamId.box user.Id)
+  let commandToActor = 
+    dto
+    |> dtoToUser
+    |> UserManagementCommand.Update
+    |> tellActor (StreamId.box user.Id)
 
-    actorWebPart >=> OK "Updating user..."
+  commandToActor >=> OK "Updating user..."
 
-  restWebPart processRequest
 
 let deleteUser userEmail =
   let user = DAL.UserManagement.findUserByEmail userEmail
 
-  let actorWebPart = 
+  let commandToActor = 
     UserManagementCommand.Deactivate
     |> tellActor (StreamId.box user.Id)
 
@@ -82,7 +75,7 @@ let deleteUser userEmail =
     |> sprintf "User with id %A deleted"
     |> OK
 
-  actorWebPart >=> webpart
+  commandToActor >=> webpart
 
 
 
