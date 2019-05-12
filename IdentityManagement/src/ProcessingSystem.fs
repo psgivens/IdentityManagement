@@ -18,6 +18,10 @@ open Common.FSharp.Actors.Infrastructure
 open IdentityManagement.Domain.DAL.Database
 open Akka.Dispatch.SysMsg
 open IdentityManagement.Domain.RoleManagement
+open Common.FSharp
+
+open Suave
+open Common.FSharp.Suave
 
 type ActorGroups = {
     UserManagementActors:ActorIO<UserManagementCommand>
@@ -68,6 +72,7 @@ let initialize () =
 
     printfn "Creating a new database..."
     initializeDatabase ()
+
     
     let system = Configuration.defaultConfig () |> System.create "sample-system"
             
@@ -99,7 +104,6 @@ let initialize () =
         userId
         (TransId.create ())
         (StreamId.create ())
-        (Version.box 0s)
     |> userCommandRequestReplyCanceled.Ask
     |> Async.AwaitTask
     |> Async.RunSynchronously
@@ -116,13 +120,12 @@ let initialize () =
         userId
         (TransId.create ())
         groupStreamId
-        (Version.box 0s)
     |> groupCommandRequestReplyCanceled.Ask
     |> Async.AwaitTask
     |> Async.Ignore
     |> Async.RunSynchronously
 
-    let group = IdentityManagement.Domain.DAL.GroupManagement.findMemberByName "masters"
+    let group = IdentityManagement.Domain.DAL.GroupManagement.findGroupByName "masters"
     printfn "Using group %s with groupId %A" group.Name group.Id
 
     GroupManagementCommand.AddUser (user.Id |> UserId.box)
@@ -130,7 +133,6 @@ let initialize () =
         userId
         (TransId.create ())
         groupStreamId
-        (Version.box 0s)
     |> groupCommandRequestReplyCanceled.Ask
     |> Async.AwaitTask
     |> Async.Ignore
@@ -148,7 +150,6 @@ let initialize () =
         userId
         (TransId.create ())
         roleStreamId
-        (Version.box 0s)
     |> roleCommandRequestReplyCanceled.Ask
     |> Async.AwaitTask
     |> Async.Ignore
@@ -162,7 +163,6 @@ let initialize () =
         userId
         (TransId.create ())
         roleStreamId
-        (Version.box 0s)
     |> roleCommandRequestReplyCanceled.Ask
     |> Async.AwaitTask
     |> Async.Ignore
@@ -173,3 +173,40 @@ let initialize () =
     actorGroups
 
 let actorGroups = initialize ()
+
+
+type DomainContext = {
+  UserId: UserId
+  TransId: TransId
+}
+
+let inline private addContext (item:DomainContext) (ctx:HttpContext) = 
+  { ctx with userState = ctx.userState |> Map.add "domain_context" (box item) }
+
+let inline private getDomainContext (ctx:HttpContext) :DomainContext =
+  ctx.userState |> Map.find "domain_context" :?> DomainContext
+
+let authenticationHeaders (p:HttpRequest) = 
+  let h = 
+    ["user_id"; "transaction_id"]
+    |> List.map (p.header >> Option.ofChoice)
+
+  match h with
+  | [Some userId; Some transId] -> 
+    let (us, uid) = userId |> Guid.TryParse
+    let (ut, tid) = transId |> Guid.TryParse
+    if us && ut then 
+        addContext { 
+            UserId = UserId.box uid; 
+            TransId = TransId.box tid 
+        } 
+        >> Some 
+        >> async.Return
+    else noMatch
+  | _ -> noMatch
+
+let envelopWithDefaults (ctx:HttpContext) = 
+    let domainContext = getDomainContext ctx
+    Common.FSharp.Envelopes.Envelope.envelopWithDefaults
+        domainContext.UserId
+        domainContext.TransId

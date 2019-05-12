@@ -38,11 +38,13 @@ let getAllUsers () =
     execQuery (fun ctx -> ctx.Users :> System.Linq.IQueryable<User>)
 
 let getHeadUser () =
-    execQuery (fun ctx -> 
+    let getUser' (ctx:IdentityManagementDbContext) = 
         query { 
             for user in ctx.Users do
             select user
-        })
+        }
+    getUser'
+    |> execQuery
     |> Seq.head
 
 

@@ -48,7 +48,7 @@ let find (groupId:System.Guid) (streamId:StreamId) =
     use context = new IdentityManagementDbContext () 
     context.Groups.Find (StreamId.unbox streamId)
 
-let findMemberByName name =
+let findGroupByName name =
     use context = new IdentityManagementDbContext () 
     query { for group in context.Groups do            
             where (group.Name = name)
