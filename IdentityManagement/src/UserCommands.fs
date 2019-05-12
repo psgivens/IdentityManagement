@@ -24,68 +24,65 @@ let private dtoToUser dto =
       Email=dto.email
   }
 
-let postUser (ctx:HttpContext) :Async<HttpContext option>=
-  let processRequest (dto:UserDto) = 
-    let newUserId = StreamId.create ()
-    let send = 
-      envelopWithDefaults ctx newUserId
-      >> actorGroups.UserManagementActors.Tell
+let private tellActor (streamId:StreamId) (cmd:UserManagementCommand) (ctx:HttpContext) = 
+  cmd
+  |> envelopWithDefaults ctx streamId
+  |> actorGroups.UserManagementActors.Tell
+  
+  ctx |> Some |> async.Return 
 
+let postUser (dto:UserDto)=  
+  let newUserId = StreamId.create ()
+
+  let actorWebPart = 
     dto
     |> dtoToUser    
     |> UserManagementCommand.Create
-    |> send
+    |> tellActor newUserId
 
-    newUserId
+  let responseWebPart = newUserId |> toJson |> OK
 
-  let webpart = 
-    Writers.setMimeType "application/json; charset=utf-8"
-    >=> request (getDtoFromReq >> processRequest >> toJson >> OK)
-   
-  ctx |> webpart
+  actorWebPart >=> responseWebPart
 
-let deactivateUser (user:User) (ctx:HttpContext) = 
-  let send = 
-    envelopWithDefaults ctx (StreamId.box user.Id)
-    >> actorGroups.UserManagementActors.Tell
 
-  UserManagementCommand.Deactivate 
-  |> send
+let deactivateUser (user:User) = 
+  let actorWebPart = 
+    UserManagementCommand.Deactivate 
+    |> tellActor (StreamId.box user.Id)
 
-  let webpart = 
+  let responseWebPart = 
     OK (sprintf "Deactivating %s" (user.Id.ToString ()))
 
-  ctx |> webpart
+  actorWebPart >=> responseWebPart
 
-let putUser userEmail (ctx:HttpContext) =
-  let processRequest (dto:UserDto) = 
+
+let putUser userEmail (dto:UserDto) =
+  let processRequest  = 
     let user = DAL.UserManagement.findUserByEmail userEmail
-    let send = 
-      envelopWithDefaults ctx (StreamId.box user.Id)
-      >> actorGroups.UserManagementActors.Tell
 
-    dto
-    |> dtoToUser
-    |> UserManagementCommand.Update
-    |> send
+    let actorWebPart = 
+      dto
+      |> dtoToUser
+      |> UserManagementCommand.Update
+      |> tellActor (StreamId.box user.Id)
 
-  ctx |> restWebPart processRequest
+    actorWebPart >=> OK "Updating user..."
 
-let deleteUser userEmail (ctx:HttpContext) =
+  restWebPart processRequest
+
+let deleteUser userEmail =
   let user = DAL.UserManagement.findUserByEmail userEmail
-  let send = 
-    envelopWithDefaults ctx (StreamId.box user.Id)
-    >> actorGroups.UserManagementActors.Tell
 
-  UserManagementCommand.Deactivate
-  |> send
+  let actorWebPart = 
+    UserManagementCommand.Deactivate
+    |> tellActor (StreamId.box user.Id)
 
   let webpart = 
     user.Id
     |> sprintf "User with id %A deleted"
     |> OK
 
-  ctx |> webpart
+  actorWebPart >=> webpart
 
 
 

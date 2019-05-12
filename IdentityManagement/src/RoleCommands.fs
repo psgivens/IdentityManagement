@@ -16,7 +16,7 @@ open IdentityManagement.Domain
 open IdentityManagement.Dtos
 open IdentityManagement.ProcessingSystem
 
-
+// TODO: Redo this file to match the style of GroupCommands
 
 // http://blog.tamizhvendan.in/blog/2015/06/11/building-rest-api-in-fsharp-using-suave/
 
@@ -34,9 +34,9 @@ let postNewRole (ctx:HttpContext) =
       |> RoleManagementCommand.Create 
       |> send
 
-      newRoleId
+      newRoleId |> toJson |> OK
     else 
-      StreamId.Empty 
+      noMatch
 
   ctx |> restWebPart processRequest
 
@@ -65,7 +65,7 @@ let putRole (roleName:string) (ctx:HttpContext) =
     |> RoleManagementCommand.UpdateName
     |> send
 
-    dto.name
+    dto.name |> toJson |> OK
   
   ctx |> restWebPart processRequest
 
@@ -82,9 +82,9 @@ let addPrincipalToRole (roleName:string) (ctx:HttpContext) =
       |> RoleManagementCommand.AddPrincipal
       |> send
 
-      uid
+      uid |> toJson |> OK
     else
-      System.Guid.Empty
+      noMatch
 
   ctx |> restWebPart processRequest
 
@@ -102,9 +102,9 @@ let removePrincipalFromRole (roleName:string) (ctx:HttpContext) =
       |> RoleManagementCommand.RemovePrincipal
       |> send
       
-      uid
+      uid |> toJson |> OK
     else
-      System.Guid.Empty
+      noMatch
 
   ctx |> restWebPart processRequest
 

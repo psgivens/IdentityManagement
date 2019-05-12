@@ -28,6 +28,6 @@ let getDtoFromReq<'a> (req : HttpRequest) =
     System.Text.Encoding.UTF8.GetString rawForm
   req.rawForm |> getString |> fromJson<'a>
 
-let restWebPart processRequest = 
+let restWebPart (processRequest:'a -> WebPart) = 
   Writers.setMimeType "application/json; charset=utf-8"
-  >=> request (getDtoFromReq >> processRequest >> toJson >> OK)
+  >=> request (getDtoFromReq >> processRequest)

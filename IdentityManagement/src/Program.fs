@@ -8,6 +8,8 @@ open Suave.RequestErrors
 
 // http://blog.tamizhvendan.in/blog/2015/06/11/building-rest-api-in-fsharp-using-suave/
 
+open Common.FSharp.Suave
+
 open IdentityManagement.ProcessingSystem
 open IdentityManagement.UserCommands
 open IdentityManagement.GroupCommands
@@ -26,14 +28,14 @@ let app =
             ]            
 
           // User commands
-          POST >=> pathCi "/users" >=> postUser
+          POST >=> pathCi "/users" >=> restWebPart postUser
           PUT >=> pathScanCi "/users/%s" putUser
           DELETE >=> pathScanCi "/users/%s" deleteUser
 
           // Group commands
           POST >=> choose 
             [
-              pathCi "/groups" >=> postNewGroup
+              pathCi "/groups" >=> restWebPart postNewGroup
               pathScanCi "/groups/%s/users" addUserToGroup 
               pathScanCi "/groups/%s/subgroups" addGroupToGroup
             ]
