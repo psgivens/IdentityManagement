@@ -72,7 +72,6 @@ let initialize () =
 
     printfn "Creating a new database..."
     initializeDatabase ()
-
     
     let system = Configuration.defaultConfig () |> System.create "sample-system"
             
@@ -80,18 +79,24 @@ let initialize () =
     let actorGroups = composeActors system
 
     let userCommandRequestReplyCanceled = 
-        RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 
-            system "user_management_command" actorGroups.UserManagementActors
+      RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 
+        system "user_management_command" actorGroups.UserManagementActors
 
     let groupCommandRequestReplyCanceled =
-        RequestReplyActor.spawnRequestReplyActor<GroupManagementCommand, GroupManagementEvent>
-            system "group_management_command" actorGroups.GroupManagementActors
+      RequestReplyActor.spawnRequestReplyActor<GroupManagementCommand, GroupManagementEvent>
+        system "group_management_command" actorGroups.GroupManagementActors
 
     let roleCommandRequestReplyCanceled = 
-        RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent>
-            system "role_management_command" actorGroups.RoleManagementActors
+      RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent>
+        system "role_management_command" actorGroups.RoleManagementActors
+
+    let runWaitAndIgnore = 
+      Async.AwaitTask
+      >> Async.Ignore
+      >> Async.RunSynchronously
 
     let userId = UserId.create ()
+    let envelop streamId = envelopWithDefaults userId (TransId.create ()) streamId
 
     printfn "Creating user..."
     { 
@@ -100,27 +105,15 @@ let initialize () =
         Email="one@three.com"
     }
     |> UserManagementCommand.Create
-    |> envelopWithDefaults
-        userId
-        (TransId.create ())
-        (StreamId.create ())
+    |> envelop (StreamId.create ())
     |> userCommandRequestReplyCanceled.Ask
-    |> Async.AwaitTask
-    |> Async.RunSynchronously
-    |> ignore
+    |> runWaitAndIgnore
 
     let user = IdentityManagement.Domain.DAL.UserManagement.findUserByEmail "one@three.com"
     printfn "Created User %s with userId %A" user.Email user.Id
 
     let groupStreamId = StreamId.create ()
     printfn "Using group stream id: %A" groupStreamId
-
-    let runWaitAndIgnore = 
-        Async.AwaitTask
-        >> Async.Ignore
-        >> Async.RunSynchronously
-
-    let envelop streamId = envelopWithDefaults userId (TransId.create ()) streamId
            
     GroupManagementCommand.Create "masters"
     |> envelop groupStreamId
@@ -183,20 +176,20 @@ let authenticationHeaders (p:HttpRequest) =
     let (us, uid) = userId |> Guid.TryParse
     let (ut, tid) = transId |> Guid.TryParse
     if us && ut then 
-        addContext { 
-            UserId = UserId.box uid; 
-            TransId = TransId.box tid 
-        } 
-        >> Some 
-        >> async.Return
+      addContext { 
+          UserId = UserId.box uid; 
+          TransId = TransId.box tid 
+      } 
+      >> Some 
+      >> async.Return
     else noMatch
   | _ -> noMatch
 
 let envelopWithDefaults (ctx:HttpContext) = 
-    let domainContext = getDomainContext ctx
-    Common.FSharp.Envelopes.Envelope.envelopWithDefaults
-        domainContext.UserId
-        domainContext.TransId
+  let domainContext = getDomainContext ctx
+  Common.FSharp.Envelopes.Envelope.envelopWithDefaults
+    domainContext.UserId
+    domainContext.TransId
 
 let tellActor<'a> (actor:ActorIO<'a>) (streamId:StreamId) (cmd:'a) (ctx:HttpContext) = 
   cmd

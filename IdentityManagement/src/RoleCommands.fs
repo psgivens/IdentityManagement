@@ -25,33 +25,42 @@ let postNewRole (dto:RoleDto) =
 
   match dto.ext_id |> System.Guid.TryParse with
   | true, erid ->  
-    (dto.name, erid)
-    |> RoleManagementCommand.Create 
-    |> tellActor newRoleId
-    >=> 
-    (newRoleId 
-    |> sprintf "Role being created with id %A"
-    |> OK)
+
+    let commandToActor = 
+      (dto.name, erid)
+      |> RoleManagementCommand.Create 
+      |> tellActor newRoleId
+    
+    let respond = 
+      (newRoleId 
+      |> sprintf "Role being created with id %A"
+      |> OK)
+
+    commandToActor >=> respond
+
   | _ -> noMatch
 
 
 let deleteRole (roleName:string) =
   let role = DAL.RoleManagement.findRoleByName roleName
 
-  RoleManagementCommand.Delete |> tellActor (StreamId.box role.Id)
-  >=>
-  OK "Role deleted"
-  
+  let commandToActor = 
+    RoleManagementCommand.Delete 
+    |> tellActor (StreamId.box role.Id)
+ 
+  commandToActor >=> OK "Role deleted"  
 
 let putRole (roleName:string) (dto:RoleDto) =
   let role = DAL.RoleManagement.findRoleByName roleName
 
-  dto.name
-  |> RoleManagementCommand.UpdateName
-  |> tellActor (StreamId.box role.Id)
-  >=>
-  (dto.name |> toJson |> OK)
-  
+  let commandToActor = 
+    dto.name
+    |> RoleManagementCommand.UpdateName
+    |> tellActor (StreamId.box role.Id)
+
+  let respond = dto.name |> toJson |> OK
+
+  commandToActor >=> respond
 
 
 let addPrincipalToRole (roleName:string) (dto:RoleMemberDto) = 
@@ -59,11 +68,15 @@ let addPrincipalToRole (roleName:string) (dto:RoleMemberDto) =
 
   match dto.id |> System.Guid.TryParse with
   | true, uid ->
-    uid
-    |> RoleManagementCommand.AddPrincipal
-    |> tellActor (StreamId.box role.Id)
-    >=> 
-    (uid |> toJson |> OK)
+    let commandToActor = 
+      uid
+      |> RoleManagementCommand.AddPrincipal
+      |> tellActor (StreamId.box role.Id)
+
+    let respond = uid |> toJson |> OK
+
+    commandToActor >=> respond
+
   | _ -> noMatch
 
 
@@ -72,10 +85,13 @@ let removePrincipalFromRole (roleName:string) (dto:UserDto) =
   
   match dto.id |> System.Guid.TryParse with
   | true, uid ->
-    uid
-    |> RoleManagementCommand.RemovePrincipal
-    |> tellActor (StreamId.box role.Id)
-    >=>
-    (uid |> toJson |> OK)
+    let commandToActor = 
+      uid
+      |> RoleManagementCommand.RemovePrincipal
+      |> tellActor (StreamId.box role.Id)
+
+    let respond = uid |> toJson |> OK
+
+    commandToActor >=> respond
   | _ -> noMatch
 
