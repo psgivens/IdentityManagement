@@ -1,6 +1,6 @@
-module IdentityManagement.RestQuery
+module IdentityManagement.Api.RestQuery
 
-open IdentityManagement.Dtos
+open IdentityManagement.Api.Dtos
 
 open Suave
 open Suave.Successful

@@ -10,11 +10,11 @@ open Suave.RequestErrors
 
 open Common.FSharp.Suave
 
-open IdentityManagement.ProcessingSystem
-open IdentityManagement.UserCommands
-open IdentityManagement.GroupCommands
-open IdentityManagement.RoleCommands
-open IdentityManagement.RestQuery
+open IdentityManagement.Api.ProcessingSystem
+open IdentityManagement.Api.UserCommands
+open IdentityManagement.Api.GroupCommands
+open IdentityManagement.Api.RoleCommands
+open IdentityManagement.Api.RestQuery
 
 let app =
   choose 

@@ -1,4 +1,4 @@
-module IdentityManagement.RoleCommands
+module IdentityManagement.Api.RoleCommands
 
 open Suave
 open Suave.Filters
@@ -13,12 +13,12 @@ open Common.FSharp.Envelopes
 open IdentityManagement.Domain.RoleManagement
 open IdentityManagement.Domain
 
-open IdentityManagement.Dtos
-open IdentityManagement.ProcessingSystem
+open IdentityManagement.Api.Dtos
+open IdentityManagement.Api.ProcessingSystem
 
 // http://blog.tamizhvendan.in/blog/2015/06/11/building-rest-api-in-fsharp-using-suave/
 
-let private tellActor = tellActor actorGroups.RoleManagementActors 
+let private tellActor = sendEnvelope actorGroups.RoleManagementActors.Tell 
 
 let postNewRole (dto:RoleDto) = 
   let newRoleId = StreamId.create ()

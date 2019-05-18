@@ -1,4 +1,4 @@
-module IdentityManagement.GroupCommands
+module IdentityManagement.Api.GroupCommands
 
 open Suave
 open Suave.Filters
@@ -12,15 +12,15 @@ open Common.FSharp.Suave
 open IdentityManagement.Domain.UserManagement
 open Common.FSharp.Envelopes
 
-open IdentityManagement.ProcessingSystem
+open IdentityManagement.Api.ProcessingSystem
+open IdentityManagement.Api.Dtos
 
-open IdentityManagement.Dtos
 open IdentityManagement.Domain.GroupManagement
 open IdentityManagement.Domain
 
 // http://blog.tamizhvendan.in/blog/2015/06/11/building-rest-api-in-fsharp-using-suave/
 
-let private tellActor = tellActor actorGroups.GroupManagementActors 
+let private tellActor = sendEnvelope actorGroups.GroupManagementActors.Tell 
 
 let postNewGroup (dto:GroupDto) = 
   let newGroupId = StreamId.create ()

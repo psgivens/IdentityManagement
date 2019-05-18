@@ -1,4 +1,4 @@
-module IdentityManagement.ProcessingSystem
+module IdentityManagement.Api.ProcessingSystem
 
 open System
 open Akka.Actor
@@ -191,9 +191,9 @@ let envelopWithDefaults (ctx:HttpContext) =
     domainContext.UserId
     domainContext.TransId
 
-let tellActor<'a> (actor:ActorIO<'a>) (streamId:StreamId) (cmd:'a) (ctx:HttpContext) = 
+let sendEnvelope<'a> (tell:Tell<'a>) (streamId:StreamId) (cmd:'a) (ctx:HttpContext) = 
   cmd
   |> envelopWithDefaults ctx streamId
-  |> actor.Tell
+  |> tell
   
   ctx |> Some |> async.Return 

@@ -1,4 +1,4 @@
-module IdentityManagement.Dtos
+module IdentityManagement.Api.Dtos
 
 open IdentityManagement.Data.Models
 

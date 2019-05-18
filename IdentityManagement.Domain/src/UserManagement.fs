@@ -11,6 +11,13 @@ type UserDetails = {
     Email:string
     }
 
+type UserManagementStateValue =
+    | Active
+    | Inactive
+
+type UserManagementState =
+    { State:UserManagementStateValue; Details:UserDetails }
+
 type UserManagementCommand =
     | Create of UserDetails
     | Activate 
@@ -22,13 +29,6 @@ type UserManagementEvent =
     | Activated
     | Deactivated
     | Updated of UserDetails
-
-type UserManagementStateValue =
-    | Active
-    | Inactive
-
-type UserManagementState =
-    { State:UserManagementStateValue; Details:UserDetails }
 
 let (|HasStateValue|_|) expected state =
     match state with 
@@ -47,14 +47,13 @@ let handle (command:CommandHandlers<UserManagementEvent, Version>) (state:UserMa
     | None, UserManagementCommand.Update _ -> failwith "Cannot update a user which does not exist"             
     |> command.event
 
-
 let evolve (state:UserManagementState option) (event:UserManagementEvent) =
     match state, event with 
     | None, UserManagementEvent.Created user -> { State=Active; Details=user }
     | HasStateValue UserManagementStateValue.Inactive st, UserManagementEvent.Activated -> { st with State=Active }
     | HasStateValue UserManagementStateValue.Active st, UserManagementEvent.Deactivated -> { st with State=Inactive }
     | Some st, UserManagementEvent.Updated details -> { st with Details=details }
-    | _, Created _ -> failwith "Cannot create a user which already exists"
+    | _, UserManagementEvent.Created _ -> failwith "Cannot create a user which already exists"
     | _, UserManagementEvent.Activated -> failwith "User must exist and be inactive to activate"
     | _, UserManagementEvent.Deactivated -> failwith "User must exist and be active to deactivate"    
     | None, UserManagementEvent.Updated _ -> failwith "Cannot update a user which does not exist"

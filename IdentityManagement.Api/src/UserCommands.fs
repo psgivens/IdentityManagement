@@ -1,4 +1,4 @@
-module IdentityManagement.UserCommands
+module IdentityManagement.Api.UserCommands
 
 open Suave
 open Suave.Filters
@@ -12,8 +12,8 @@ open IdentityManagement.Domain.UserManagement
 open IdentityManagement.Domain
 open IdentityManagement.Data.Models
 
-open IdentityManagement.ProcessingSystem
-open IdentityManagement.Dtos
+open IdentityManagement.Api.ProcessingSystem
+open IdentityManagement.Api.Dtos
 
 // http://blog.tamizhvendan.in/blog/2015/06/11/building-rest-api-in-fsharp-using-suave/
 
@@ -24,7 +24,7 @@ let private dtoToUser dto =
       Email=dto.email
   }
 
-let private tellActor = tellActor actorGroups.UserManagementActors 
+let private tellActor = sendEnvelope actorGroups.UserManagementActors.Tell 
 
 let postUser (dto:UserDto)=  
   let newUserId = StreamId.create ()
