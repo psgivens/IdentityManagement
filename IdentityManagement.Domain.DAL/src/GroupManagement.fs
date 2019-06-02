@@ -54,3 +54,8 @@ let findGroupByName name =
             where (group.Name = name)
             select group
             exactlyOne }
+
+let getAllGroups () =
+    execQuery (fun ctx -> 
+        ctx.GetGroupsInclusive () )
+

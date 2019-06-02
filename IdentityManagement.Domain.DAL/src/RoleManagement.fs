@@ -48,3 +48,9 @@ let findRoleByName name =
             where (role.Name = name)
             select role
             exactlyOne }
+
+let getAllRoles () =
+    execQuery (fun ctx -> ctx.Roles :> System.Linq.IQueryable<Role>)
+
+
+

@@ -54,5 +54,11 @@ namespace IdentityManagement.Data.Models {
         public virtual DbSet<GroupPrincipalMap> GroupPrincipalMaps { get; set; }
         public virtual DbSet<RolePrincipalMap> RolePrincipalMaps { get; set; }
 
+        public System.Linq.IQueryable<Group> GetGroupsInclusive () {
+            return this.Groups
+                .Include (g => g.MemberRelations)
+                .ThenInclude (mr => mr.Principal)
+                ;
+        }
     }
 }

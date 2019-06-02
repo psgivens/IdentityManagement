@@ -25,6 +25,8 @@ let app =
             [ pathCi "/" >=> OK "Default route"
               pathCi "/users" >=> (getUsers |> Suave.Http.context) 
               pathScanCi "/users/%s" getUser
+              pathCi "/groups" >=> (getGroups |> Suave.Http.context) 
+              pathCi "/roles" >=> (getRoles |> Suave.Http.context) 
             ]            
 
           // User commands

@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/IdentityManagement/bin/Debug/netcoreapp2.2/IdentityManagement.dll",
+            "program": "${workspaceFolder}/IdentityManagement.Api/bin/Debug/netcoreapp2.2/IdentityManagement.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",

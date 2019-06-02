@@ -15,8 +15,8 @@ type GroupMemberDto = {
 type GroupDto = { 
   id : string
   name : string
-  users : GroupMemberDto []
-  groups : GroupMemberDto [] }
+  users : GroupMemberDto list
+  groups : GroupMemberDto list }
 
 type RoleMemberDto = {
   id : string
@@ -26,10 +26,24 @@ type RoleDto = {
   ext_id : string
   id : string
   name : string
-  members : RoleMemberDto [] }
+  members : RoleMemberDto list }
 
-let convertToDto (user:User) = { 
+let convertToUserDto (user:User) = { 
   UserDto.email = user.Email
   first_name = user.FirstName
   last_name = user.LastName
   id = user.Id.ToString () }
+
+let convertToGroupDto (group:Group) = {
+  GroupDto.id = group.Id.ToString ()
+  name = group.Name
+  groups = []
+  users = []
+}
+
+let convertToRoleDto (role:Role) = {
+  RoleDto.id = role.Id.ToString ()
+  ext_id = role.ExternalId.ToString ()
+  name = role.Name 
+  members = []
+}

@@ -22,6 +22,12 @@ $domain = "http://localhost:8080"
 
 
 $contextHeaders = @{
+    user_id='638d111c-c7bb-4710-8ea2-91c4bc3ea530'
+    transaction_id='638d111c-c7bb-4710-8ea2-91c4bc3ea530'
+}
+
+
+$contextHeaders = @{
     user_id='Phillip Scott Givens'
     transaction_id='somevalue'
 }
@@ -65,5 +71,30 @@ $ret = Invoke-RestMethod `
   -Uri $domain/users `
   -Headers $contextHeaders 
 if ($user -eq $null) { Write-Error "no user found." } 
+
+
+
+
+
+### Groups
+
+$groups = Invoke-RestMethod `
+  -Method GET `
+  -Uri $domain/groups `
+  -Headers $contextHeaders 
+$groups | measure | %{ if ($_.Count -lt 1) { Write-Error "no groups found." } }
+
+
+### Roles
+
+$roles = Invoke-RestMethod `
+  -Method GET `
+  -Uri $domain/roles `
+  -Headers $contextHeaders 
+$roles | measure | %{ if ($_.Count -lt 1) { Write-Error "no roles found." } }
+
+
+
+
 
 
