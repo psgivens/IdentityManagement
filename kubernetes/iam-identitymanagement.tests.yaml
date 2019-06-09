@@ -1,0 +1,76 @@
+kind: List
+apiVersion: v1
+items:
+- kind: PersistentVolume
+  apiVersion: v1
+  metadata:
+    name: test-persistent-volume-pgsql-identity
+  spec:
+    capacity:
+      storage: 1Mi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    gcePersistentDisk:
+      pdName: persistent-volume-pgsql-identity
+      fsType: nfs4
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: identity-db
+  spec:
+    clusterIP: None
+    selector:
+      app: identity-db
+    ports:
+    - name: pgsql
+      port: 5432
+- kind: StatefulSet
+  apiVersion: apps/v1beta1
+  metadata:
+    name: identity-db
+  spec:
+    serviceName: identity-db
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app: identity-db
+      spec:
+        containers:
+        - name: identity-db
+          image: localhost:32000/postgres:alpine
+          env:
+          - name: POSTGRES_PASSWORD
+            value: Password1
+          - name: POSTGRES_USER
+            value: samplesam
+          - name: POSTGRES_DB
+            value: defaultdb
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+          ports:
+          - name: postgresql
+            containerPort: 5432
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/postgresql/data/pgdata
+    volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        resources:
+          requests:
+            storage: 1Mi
+        accessModes:
+        - ReadWriteOnce
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: identity-db-service-public
+  spec:
+    selector:
+      app: identity-db
+    ports:
+    - port: 5432
+      targetPort: 5432

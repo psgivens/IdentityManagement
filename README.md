@@ -3,14 +3,23 @@ Identity Management for infrastructure
 
 # Environment setup 
 
-* git PersonalTracker.Api, Common.FSharp, and IdentityManagement
-* link PersonalTracker.Api/scripts/PomodoroEnv.psm1 into pwsh modules directory
-* link IdentityManagement/scripts/MsIdentityManagment.psm1 into pwsh modules directory
+In a common folder, fetch tge following
+* Architecture
+* IdentityManagement
+
+Point the variable $ENV:POMODORO_REPOS at that folder
+Add the values to your $ENV:PATH
+* $ENV:POMODORO_REPOS/Architecture/scripts
+* $ENV:POMODORO_REPOS/IdentityManagement/scripts
 
 # Build
 
-1. Build pomdooro-dotnet-stage -- Use PersonalTracker.Api/scripts/PomodoroEnv.pms1:Build-Image 
-2. Build pms-identitymanagement -- MsIdentityManagement.psm1
+Build-CoreDbgStage.ps1
+Publish-CoreDbImage.ps1
+
+# Run
+
+Run-IdMgmtTests
 
 # Build performance
 
