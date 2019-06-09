@@ -65,7 +65,7 @@ let app =
           // Role commands
           BAD_REQUEST "Request path was not found"
         ]
-      Suave.RequestErrors.UNAUTHORIZED "Request is missing authentication headers"    
+      Suave.RequestErrors.BAD_REQUEST "Request is missing authentication headers"    
     ]
 
 let defaultArgument x y = defaultArg y x

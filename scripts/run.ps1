@@ -65,13 +65,25 @@ $joseph = @{
     email='joseph@smith.com'
     first_name='joseph'
     last_name='smith'
-}
+} | ConvertTo-Json
 $ret = Invoke-RestMethod `
   -Method Post `
+  -Body $joseph `
   -Uri $domain/users `
   -Headers $contextHeaders 
-if ($user -eq $null) { Write-Error "no user found." } 
+if ($ret -eq $null) { Write-Error "no user found." } 
 
+$jane = @{ 
+    email='jane@smith.com'
+    first_name='jane'
+    last_name='smith'
+} | ConvertTo-Json
+$ret = Invoke-RestMethod `
+  -Method Post `
+  -Body $jane `
+  -Uri $domain/users `
+  -Headers $contextHeaders 
+if ($ret -eq $null) { Write-Error "no user found." } 
 
 
 
@@ -92,6 +104,18 @@ $roles = Invoke-RestMethod `
   -Uri $domain/roles `
   -Headers $contextHeaders 
 $roles | measure | %{ if ($_.Count -lt 1) { Write-Error "no roles found." } }
+
+
+
+
+
+kubectl run `
+  -it svclookup `
+  --image=tutum/dnsutils `
+  --rm `
+  --restart=Never -- dig SRV identity-db-statefulset.default.svc.cluster.local
+
+
 
 
 

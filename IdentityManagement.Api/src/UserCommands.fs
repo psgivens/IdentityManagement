@@ -17,21 +17,28 @@ open IdentityManagement.Api.Dtos
 
 // http://blog.tamizhvendan.in/blog/2015/06/11/building-rest-api-in-fsharp-using-suave/
 
-let private dtoToUser dto = 
+let private dtoToNewUser (dto:NewUserDto) = 
   { 
       FirstName=dto.first_name
       LastName=dto.last_name
       Email=dto.email
   }
 
+let private dtoToUser (dto:UserDto) = 
+  { 
+      UserDetails.Email=dto.email
+      FirstName=dto.first_name
+      LastName=dto.last_name
+  }
+
 let private tellActor = sendEnvelope actorGroups.UserManagementActors.Tell 
 
-let postUser (dto:UserDto)=  
+let postUser (dto:NewUserDto)=  
   let newUserId = StreamId.create ()
 
   let commandToActor = 
     dto
-    |> dtoToUser    
+    |> dtoToNewUser    
     |> UserManagementCommand.Create
     |> tellActor newUserId
 

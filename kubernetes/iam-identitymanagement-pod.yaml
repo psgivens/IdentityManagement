@@ -1,0 +1,11 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: iam-im-single
+spec:
+  containers:
+    - image: localhost:32000/iam-identitymanagement
+      name: identitymanagement
+      ports:
+      - containerPort: 80
+        protocol: TCP
