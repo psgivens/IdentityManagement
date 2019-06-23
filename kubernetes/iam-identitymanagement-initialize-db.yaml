@@ -1,0 +1,25 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: batch-job-initialize-database
+spec:
+  template:
+    metadata:
+      labels:
+        app: batch-job-initialize-db
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: initializer
+        image: localhost:32000/iam-identitymanagement
+        workingDir: /app/IdentityManagement/IdentityManagement.Data
+        command: ["dotnet"]
+        args: ["ef", "database", "update"]
+        volumeMounts:
+        - name: datadbconfig
+          mountPath: /app/IdentityManagement/IdentityManagement.Data/config
+          readOnly: true
+      volumes:
+      - name: datadbconfig
+        configMap:
+          name: dbconfigs

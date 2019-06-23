@@ -39,10 +39,6 @@ let handle (command:CommandHandlers<GroupManagementEvent, Version>) (state:Group
     | _, UpdateName name -> NameUpdated name
     |> command.event
 
-let remove item list =
-    let notMatch x = item <> x
-    list |> List.filter notMatch
-
 let evolve (state:GroupManagementState option) (event:GroupManagementEvent) =
     match state, event with 
     | None, Created name -> { Name=name; Users = []; Groups = []; Deleted=false}
@@ -51,8 +47,8 @@ let evolve (state:GroupManagementState option) (event:GroupManagementEvent) =
     | _, Deleted -> { Name=""; Users=[]; Groups=[]; Deleted=true }
     | Some st, UserAdded userId -> { st with Users = userId :: st.Users }
     | Some st, GroupAdded groupId -> { st with Groups = groupId :: st.Groups }
-    | Some st, UserRemoved userId -> { st with Users = st.Users |> remove userId }
-    | Some st, GroupRemoved groupId -> { st with Groups = st.Groups |> remove groupId }
+    | Some st, UserRemoved userId -> { st with Users = st.Users |> List.filter ((<>) userId) }
+    | Some st, GroupRemoved groupId -> { st with Groups = st.Groups |> List.filter ((<>) groupId) }
     | Some st, NameUpdated name -> { st with Name = name }
 
 

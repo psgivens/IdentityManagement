@@ -33,10 +33,6 @@ let handle (command:CommandHandlers<RoleManagementEvent, Version>) (state:RoleMa
     | _, UpdateName name -> NameUpdated name
     |> command.event
 
-let remove item list =
-    let notMatch x = item <> x
-    list |> List.filter notMatch
-
 let evolve (state:RoleManagementState option) (event:RoleManagementEvent) =
     match state, event with 
     | None, Created (name, id) -> { Name=name; ExternalId=id; Principals = []; Deleted=false }
@@ -44,7 +40,7 @@ let evolve (state:RoleManagementState option) (event:RoleManagementEvent) =
     | None, _ -> failwith "Group does not exist"
     | Some st, Deleted -> { st with Name=""; Principals = []; Deleted=true }
     | Some st, PrincipalAdded id -> { st with Principals = id :: st.Principals }
-    | Some st, PrincipalRemoved id -> { st with Principals = st.Principals |> remove id }
+    | Some st, PrincipalRemoved id -> { st with Principals = st.Principals |> List.filter ((<>) id) }
     | Some st, NameUpdated name -> { st with Name = name }
 
 
