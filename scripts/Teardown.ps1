@@ -10,6 +10,8 @@ kubectl delete pvc/data-identity-db-0
 
 kubectl delete -f ./kubernetes/identity-db-persistent-volume-pgsql.yaml
 
+kubectl delete -f ./kubernetes/iam-identitymanagement-configmap.yaml
+
 
 
 
