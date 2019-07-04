@@ -17,7 +17,7 @@ Write-Host "Wait for the service to become online..."
 $retries=10
 foreach ($i in 1..$retries) {
     $cmd = "kubectl get pods -o json -l app=identity-db"
-    $phase = Invoke-Expression $cmd | ConvertFrom-Json | %{$_.items.status.phase}
+    $phase = Invoke-Expression $cmd | ConvertFrom-Json | ForEach-Object {$_.items.status.phase}
     Write-Host "phase: $phase"
     if ($phase -eq 'Running') { 
         Write-Host "System ready"
@@ -26,6 +26,7 @@ foreach ($i in 1..$retries) {
         Write-Host "Match not found after $retries retries"
         exit
     }
+    Start-Sleep 1
 }
 
 kubectl create -f ./kubernetes/iam-identitymanagement-configmap.yaml

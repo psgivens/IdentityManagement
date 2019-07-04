@@ -18,7 +18,8 @@ open IdentityManagement.Api.RestQuery
 
 let app =
   choose 
-    [ request authenticationHeaders >=> choose
+    [ GET >=> pathCi "/ping" >=> OK "unauthenticated ping"
+      request authenticationHeaders >=> choose
         [ 
           // All requests are handled together because CQRS
           GET >=> choose
@@ -75,7 +76,7 @@ let defaultArgument x y = defaultArg y x
 let main argv =
     printfn "main argv"
 
-    let config = { defaultConfig with  bindings = [ HttpBinding.createSimple HTTP "127.0.0.1" 8080 ]}
+    let config = { defaultConfig with  bindings = [ HttpBinding.createSimple HTTP "0.0.0.0" 2080 ]}
 
     startWebServer config app
     0

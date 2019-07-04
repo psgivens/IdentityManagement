@@ -1,7 +1,7 @@
 #!/usr/bin/pwsh
 
 
-$domain = "http://localhost:8080"
+$domain = "http://localhost:2080"
 
 # Function Invoke-ErrorRequest {
 #     param(
@@ -38,12 +38,21 @@ $contextHeaders = @{
 # $err
 
 
+
 # Default route
 Invoke-WebRequest `
   -Method GET `
   -Uri $domain `
   -Headers $contextHeaders 
     
+$domain="http://localhost:2080"
+
+$domain="http://10.152.183.217:2080"
+Write-Host $domain
+# Default route
+Invoke-WebRequest `
+  -Method GET `
+  -Uri "$domain/ping" 
 
 # Default route
 $users = Invoke-RestMethod `

@@ -1,0 +1,27 @@
+kind: ReplicaSet
+apiVersion: apps/v1beta2
+metadata:
+  name: iam-identitymanagement-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: iam-identitymanagement-service
+  template:
+    metadata:
+      labels:
+        app: iam-identitymanagement-service
+    spec:
+      containers:
+      - name: iam-identitymanagement-service
+        image: localhost:32000/iam-identitymanagement
+        workingDir: /app/IdentityManagement/IdentityManagement.Api
+        command: ["dotnet"]
+        args: ["run"]
+        ports:
+        - name: https
+          protocol: TCP
+          containerPort: 443
+        - name: http
+          protocol: TCP
+          containerPort: 2080
