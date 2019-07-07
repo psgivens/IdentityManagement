@@ -1,19 +1,19 @@
 kind: ReplicaSet
 apiVersion: apps/v1beta2
 metadata:
-  name: iam-identitymanagement-service
+  name: iam-id-mgmt-api-service
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: iam-identitymanagement-service
+      app: iam-id-mgmt-api-service
   template:
     metadata:
       labels:
-        app: iam-identitymanagement-service
+        app: iam-id-mgmt-api-service
     spec:
       containers:
-      - name: iam-identitymanagement-service
+      - name: iam-id-mgmt-api-service
         image: localhost:32000/iam-identitymanagement
         workingDir: /app/IdentityManagement/IdentityManagement.Api
         command: ["dotnet"]
@@ -25,3 +25,11 @@ spec:
         - name: http
           protocol: TCP
           containerPort: 2080
+        volumeMounts:
+        - name: datadbconfig
+          mountPath: /app/IdentityManagement/IdentityManagement.Api/config
+          readOnly: true
+      volumes:
+      - name: datadbconfig
+        configMap:
+          name: dbconfigs

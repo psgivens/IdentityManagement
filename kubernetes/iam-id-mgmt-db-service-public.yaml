@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: identity-db-service-public
+  name: iam-id-mgmt-db-service-public
 spec:
   selector:
-    app: identity-db
+    app: iam-id-mgmt-db
   ports:
   - port: 5432
     targetPort: 5432

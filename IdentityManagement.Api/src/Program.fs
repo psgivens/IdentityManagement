@@ -78,6 +78,8 @@ let main argv =
 
     let config = { defaultConfig with  bindings = [ HttpBinding.createSimple HTTP "0.0.0.0" 2080 ]}
 
+    actorGroups |> ignore 
+    
     startWebServer config app
     0
 

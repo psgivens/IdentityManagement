@@ -16,6 +16,23 @@
             "stopAtEntry": false
         },
         {
+            "name": ".NET Core Launch (test)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-test",
+            "program": "dotnet.exe",
+            "args": ["test"],
+            "cwd": "${workspaceFolder}/IdentityManagement.UnitTests/",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Test-Attach",
+            "type": "coreclr",            
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",

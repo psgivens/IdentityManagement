@@ -3,6 +3,16 @@
 
 $domain = "http://localhost:2080"
 
+
+# Cluster-Ip of node port
+$domain="http://10.152.183.40:2080"
+
+# Node port
+$domain = "http://localhost:32080"
+
+# Node port - Assumes blairstone is set in your hosts file 
+$domain = "http://blairstone:32080"
+
 # Function Invoke-ErrorRequest {
 #     param(
 #         [Parameter(Mandatory=$true)]
@@ -38,6 +48,9 @@ $contextHeaders = @{
 # $err
 
 
+Invoke-WebRequest `
+  -Method GET `
+  -Uri $domain 
 
 # Default route
 Invoke-WebRequest `
@@ -45,21 +58,25 @@ Invoke-WebRequest `
   -Uri $domain `
   -Headers $contextHeaders 
     
-$domain="http://localhost:2080"
 
-$domain="http://10.152.183.217:2080"
 Write-Host $domain
 # Default route
 Invoke-WebRequest `
   -Method GET `
   -Uri "$domain/ping" 
 
+
 # Default route
 $users = Invoke-RestMethod `
   -Method GET `
   -Uri $domain/users `
   -Headers $contextHeaders 
-$users | measure | %{ if ($_.Count -le 1) { Write-Error "no users found." } }
+$users | measure | %{ if ($_.Count -lt 1) { Write-Error "no users found." } 
+  else { 
+    Write-Host "usres found"  
+    $users | Format-Table
+  }
+}
 
 
 # Default route
@@ -69,11 +86,10 @@ $user = Invoke-RestMethod `
   -Headers $contextHeaders 
 if ($user -eq $null) { Write-Error "no user found." } 
 
-
 $joseph = @{ 
-    email='joseph@smith.com'
-    first_name='joseph'
-    last_name='smith'
+    email='beth@blyth.com'
+    first_name='beth'
+    last_name='blyth'
 } | ConvertTo-Json
 $ret = Invoke-RestMethod `
   -Method Post `
@@ -82,9 +98,42 @@ $ret = Invoke-RestMethod `
   -Headers $contextHeaders 
 if ($ret -eq $null) { Write-Error "no user found." } 
 
+$joseph = @{ 
+    email='adam@blyth.com'
+    first_name='adam'
+    last_name='blyth'
+} | ConvertTo-Json
+$ret = Invoke-RestMethod `
+  -Method Post `
+  -Body $joseph `
+  -Uri $domain/users `
+  -Headers $contextHeaders 
+if ($ret -eq $null) { Write-Error "no user found." } 
 $jane = @{ 
-    email='jane@smith.com'
-    first_name='jane'
+    email='garry@smith.com'
+    first_name='garry'
+    last_name='smith'
+} | ConvertTo-Json
+$ret = Invoke-RestMethod `
+  -Method Post `
+  -Body $jane `
+  -Uri $domain/users `
+  -Headers $contextHeaders 
+if ($ret -eq $null) { Write-Error "no user found." } 
+$joseph = @{ 
+    email='hank@blyth.com'
+    first_name='hank'
+    last_name='blyth'
+} | ConvertTo-Json
+$ret = Invoke-RestMethod `
+  -Method Post `
+  -Body $joseph `
+  -Uri $domain/users `
+  -Headers $contextHeaders 
+if ($ret -eq $null) { Write-Error "no user found." } 
+$jane = @{ 
+    email='iliza@smith.com'
+    first_name='iliza'
     last_name='smith'
 } | ConvertTo-Json
 $ret = Invoke-RestMethod `

@@ -1,1 +1,1 @@
-User ID=samplesam;Password=Password1;Host=identity-db-0.identity-db;Port=5432;Database=IdentityManagementDb;Pooling=true;
+User ID=samplesam;Password=Password1;Host=blairstone;Port=32432;Database=IdentityManagementDb;Pooling=true;

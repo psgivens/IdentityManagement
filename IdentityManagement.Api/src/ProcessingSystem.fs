@@ -1,3 +1,4 @@
+[<AutoOpen>]
 module IdentityManagement.Api.ProcessingSystem
 
 open System
@@ -152,7 +153,11 @@ let initialize () =
 
     actorGroups
 
-let actorGroups = initialize ()
+open System.Runtime.CompilerServices
+[<MethodImpl(MethodImplOptions.NoInlining)>]
+let actorGroups = 
+  printfn "Initializing actorGroups"
+  initialize ()
 
 
 type DomainContext = {

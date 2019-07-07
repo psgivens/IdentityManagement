@@ -1,0 +1,13 @@
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: iam-identitymanagement-service-public
+spec:
+  rules:
+  - host: iam-identitymanagement-service-public
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: iam-identitymanagement-service-public
+          servicePort: 2080

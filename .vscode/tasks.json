@@ -12,6 +12,50 @@
                 "reveal": "silent"
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "shell",
+            "group": "test",
+            "args": [
+                "test"
+            ],
+            "options": {"cwd": "${workspaceFolder}/IdentityManagement.UnitTests", "env": {
+                "VSTEST_RUNNER_DEBUG":"1"
+            } },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test-for-debug",
+            "command": "dotnet",
+            "type": "shell",
+            "group": "test",
+            "args": [
+                "test"
+            ],
+            "options": {"cwd": "${workspaceFolder}/IdentityManagement.UnitTests", "env": {
+                "VSTEST_RUNNER_DEBUG":"1"
+            } },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-test",
+            "command": "dotnet",
+            "type": "shell",
+            "group": "test",
+            "args": [
+                "build"
+            ],
+            
+            "options": {"cwd": "${workspaceFolder}/IdentityManagement.UnitTests" },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
         }
     ]
 }
