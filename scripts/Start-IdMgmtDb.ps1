@@ -26,7 +26,7 @@ foreach ($i in 1..$retries) {
 kubectl create -f ./kubernetes/iam-id-mgmt-api-configmap.yaml
 
 Write-Host "Initializing the database with 'dotnet ef database update"
-kubectl create -f ./kubernetes/iam-id-mgmt-api-initialize-db.yaml
+kubectl create -f ./kubernetes/iam-id-mgmt-api-job-initialize-db.yaml
 
 Write-Host "Wait for database initialization job to finish..."
 $retries=40
@@ -40,7 +40,7 @@ foreach ($i in 1..$retries) {
     Write-Host "phase: $phase"
     if ($phase -eq 'Succeeded') { 
         Write-Host "Deleting job"
-        kubectl delete -f ./kubernetes/iam-id-mgmt-api-initialize-db.yaml
+        kubectl delete -f ./kubernetes/iam-id-mgmt-api-job-initialize-db.yaml
         break; }
     if ($i -eq $retries) { 
         Write-Host "Match not found after $retries retries"

@@ -18,6 +18,18 @@ spec:
         workingDir: /app/IdentityManagement/IdentityManagement.Api
         command: ["dotnet"]
         args: ["run"]
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 2080
+          initialDelaySeconds: 10
+          periodSeconds: 10            
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 2080
+          initialDelaySeconds: 120
+          periodSeconds: 10            
         ports:
         - name: https
           protocol: TCP
