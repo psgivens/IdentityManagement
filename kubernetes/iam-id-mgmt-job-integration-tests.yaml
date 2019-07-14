@@ -11,7 +11,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: integration-tests
-        image: localhost:32000/iam-identitymanagement
+        image: localhost:32000/iam-id-mgmt-api-service
         workingDir: /app/IdentityManagement/IdentityManagement.UnitTests
         command: ["dotnet"]
         args: ["test"]

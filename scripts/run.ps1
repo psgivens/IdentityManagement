@@ -1,8 +1,18 @@
 #!/usr/bin/pwsh
 
+sudo iptables -P FORWARD ACCEPT
+
+
+kubectl run curl --image tutum/curl -l app=curl 
+
+kubectl exec tutum/curl -- curl -s 'http://iam-id-mgmt-api-serivce-public:2080'
+
+
 $domain = "http://localhost"
 
 $domain = "http://localhost:2080"
+
+$domain = "http://localhost:32081"
 
 
 # Cluster-Ip of node port
@@ -71,11 +81,29 @@ Invoke-WebRequest `
   -Method GET `
   -Uri "$domain" 
 
+
+
+sudo iptables -P FORWARD ACCEPT
+
+$domain = "http://10.152.183.114:32081"
+
+$domain = "http://10.152.183.202:32080"
+
+$domain = "http://10.152.183.90:2080"
+
+
+$domain = "http://localhost:32080"
+
+$domain = "http://localhost:32081"
+
 Write-Host $domain
 # Default route
 Invoke-WebRequest `
   -Method GET `
   -Uri "$domain/ping" 
+
+
+
 
 
 # Default route
