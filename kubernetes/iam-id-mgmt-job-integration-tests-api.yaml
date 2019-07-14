@@ -1,12 +1,12 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: batch-job-integration-tests
+  name: iam-id-mgmt-job-integration-tests
 spec:
   template:
     metadata:
       labels:
-        app: batch-job-integration-tests
+        app: iam-id-mgmt-job-integration-tests
     spec:
       restartPolicy: OnFailure
       containers:
@@ -25,4 +25,4 @@ spec:
       volumes:
       - name: datadbconfig
         configMap:
-          name: dbconfigs
+          name: iam-id-mgmt-dbconfigs

@@ -1,11 +1,14 @@
 #!/usr/bin/pwsh
 
+$domain = "http://localhost"
 
 $domain = "http://localhost:2080"
 
 
 # Cluster-Ip of node port
-$domain="http://10.152.183.40:2080"
+$domain="http://10.152.183.157:2080"
+
+$domain="http://10.152.183.157"
 
 # Node port
 $domain = "http://localhost:32080"
@@ -47,10 +50,13 @@ $contextHeaders = @{
 #   -Uri $domain 
 # $err
 
+$domain="http://pomodoro.poms"
+
+$domain="http://localhost"
 
 Invoke-WebRequest `
   -Method GET `
-  -Uri $domain 
+  -Uri $domain/foo
 
 # Default route
 Invoke-WebRequest `
@@ -58,6 +64,12 @@ Invoke-WebRequest `
   -Uri $domain `
   -Headers $contextHeaders 
     
+
+Write-Host $domain
+# Default route
+Invoke-WebRequest `
+  -Method GET `
+  -Uri "$domain" 
 
 Write-Host $domain
 # Default route

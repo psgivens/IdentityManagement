@@ -1,17 +1,17 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: batch-job-initialize-database
+  name: iam-id-mgmt-job-initialize-db
 spec:
   template:
     metadata:
       labels:
-        app: batch-job-initialize-db
+        app: iam-id-mgmt-job-initialize-db
     spec:
       restartPolicy: OnFailure
       containers:
       - name: initializer
-        image: localhost:32000/iam-identitymanagement
+        image: localhost:32000/iam-id-mgmt-api-service
         workingDir: /app/IdentityManagement/IdentityManagement.Data
         command: ["dotnet"]
         args: ["ef", "database", "update"]
@@ -22,4 +22,4 @@ spec:
       volumes:
       - name: datadbconfig
         configMap:
-          name: dbconfigs
+          name: iam-id-mgmt-dbconfigs
