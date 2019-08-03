@@ -35,6 +35,8 @@ let (|HasStateValue|_|) expected state =
     | Some(value) when value.State = expected -> Some value
     | _ -> None 
 
+// FIXME: Make me command handler agnostic so that I can unit test. 
+// TODO: Pass in a dependency injection object
 let handle (command:CommandHandlers<UserManagementEvent, Version>) (state:UserManagementState option) (cmdenv:Envelope<UserManagementCommand>) =
     match state, cmdenv.Item with 
     | None, Create user -> Created user

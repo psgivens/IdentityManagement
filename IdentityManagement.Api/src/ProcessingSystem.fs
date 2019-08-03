@@ -38,6 +38,7 @@ let composeActors system =
              "userManagement", 
              UserManagementEventStore (),
              buildState UserManagement.evolve,
+             // FIXME: Pass in dependency injection object factory
              UserManagement.handle,
              DAL.UserManagement.persist)    
 
@@ -47,6 +48,7 @@ let composeActors system =
              "groupManagement",
              GroupManagementEventStore (),
              buildState GroupManagement.evolve,
+             // FIXME: Pass in dependency injection object factory
              GroupManagement.handle,
              DAL.GroupManagement.persist
              )
@@ -57,6 +59,7 @@ let composeActors system =
              "roleManagement",
              RoleManagementEventStore (),
              buildState RoleManagement.evolve,
+             // FIXME: Pass in dependency injection object factory
              RoleManagement.handle,
              DAL.RoleManagement.persist)
              

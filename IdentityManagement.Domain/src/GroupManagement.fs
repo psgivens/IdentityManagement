@@ -26,7 +26,9 @@ type GroupManagementEvent =
 type GroupManagementState =
     { Name:string; Users: UserId list; Groups: Guid list; Deleted: bool }
 
-let handle (command:CommandHandlers<GroupManagementEvent, Version>) (state:GroupManagementState option) (cmdenv:Envelope<GroupManagementCommand>) =    
+// FIXME: Make me command handler agnostic so that I can unit test. 
+// TODO: Pass in a dependency injection object
+let handle (command:CommandHandlers<GroupManagementEvent, Version>) (state:GroupManagementState option) (cmdenv:Envelope<GroupManagementCommand>) =
     match state, cmdenv.Item with 
     | None, Create name -> Created name
     | _, Create _ -> failwith "Cannot create a group which already exists"
@@ -50,5 +52,4 @@ let evolve (state:GroupManagementState option) (event:GroupManagementEvent) =
     | Some st, UserRemoved userId -> { st with Users = st.Users |> List.filter ((<>) userId) }
     | Some st, GroupRemoved groupId -> { st with Groups = st.Groups |> List.filter ((<>) groupId) }
     | Some st, NameUpdated name -> { st with Name = name }
-
 
