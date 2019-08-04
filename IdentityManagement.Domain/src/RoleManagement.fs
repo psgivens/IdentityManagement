@@ -44,5 +44,5 @@ let evolve (state:RoleManagementState option) (event:RoleManagementEvent) =
     | Some st, PrincipalAdded id -> { st with Principals = id :: st.Principals }
     | Some st, PrincipalRemoved id -> { st with Principals = st.Principals |> List.filter ((<>) id) }
     | Some st, NameUpdated name -> { st with Name = name }
-
+    |> Some
 

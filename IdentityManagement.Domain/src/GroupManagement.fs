@@ -52,4 +52,5 @@ let evolve (state:GroupManagementState option) (event:GroupManagementEvent) =
     | Some st, UserRemoved userId -> { st with Users = st.Users |> List.filter ((<>) userId) }
     | Some st, GroupRemoved groupId -> { st with Groups = st.Groups |> List.filter ((<>) groupId) }
     | Some st, NameUpdated name -> { st with Name = name }
+    |> Some
 

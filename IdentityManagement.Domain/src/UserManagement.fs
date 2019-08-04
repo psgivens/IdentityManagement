@@ -59,6 +59,6 @@ let evolve (state:UserManagementState option) (event:UserManagementEvent) =
     | _, UserManagementEvent.Activated -> failwith "User must exist and be inactive to activate"
     | _, UserManagementEvent.Deactivated -> failwith "User must exist and be active to deactivate"    
     | None, UserManagementEvent.Updated _ -> failwith "Cannot update a user which does not exist"
-
+    |> Some
 
 
