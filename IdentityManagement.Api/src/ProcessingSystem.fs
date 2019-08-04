@@ -1,6 +1,8 @@
 [<AutoOpen>]
 module IdentityManagement.Api.ProcessingSystem
 
+open IdentityManagement.Api.Composition
+
 open System
 open Akka.Actor
 open Akka.FSharp
@@ -24,49 +26,6 @@ open Common.FSharp
 open Suave
 open Common.FSharp.Suave
 
-type ActorGroups = {
-    UserManagementActors:ActorIO<UserManagementCommand>
-    GroupManagementActors:ActorIO<GroupManagementCommand>
-    RoleManagementActors:ActorIO<RoleManagementCommand>
-    }
-
-let composeActors system =
-    // Create member management actors
-    let userManagementActors = 
-        EventSourcingActors.spawn 
-            (system,
-             "userManagement", 
-             UserManagementEventStore (),
-             buildState UserManagement.evolve,
-             // FIXME: Pass in dependency injection object factory
-             UserManagement.handle,
-             DAL.UserManagement.persist)    
-
-    let groupManagementActors = 
-        EventSourcingActors.spawn
-            (system,
-             "groupManagement",
-             GroupManagementEventStore (),
-             buildState GroupManagement.evolve,
-             // FIXME: Pass in dependency injection object factory
-             GroupManagement.handle,
-             DAL.GroupManagement.persist
-             )
-
-    let roleManagementActors =
-        EventSourcingActors.spawn   
-            (system,
-             "roleManagement",
-             RoleManagementEventStore (),
-             buildState RoleManagement.evolve,
-             // FIXME: Pass in dependency injection object factory
-             RoleManagement.handle,
-             DAL.RoleManagement.persist)
-             
-    { UserManagementActors=userManagementActors
-      GroupManagementActors=groupManagementActors
-      RoleManagementActors=roleManagementActors }
-
 
 let initialize () = 
     printfn "Resolve newtonsoft..."
@@ -79,8 +38,14 @@ let initialize () =
     
     let system = Configuration.defaultConfig () |> System.create "sample-system"
             
+    let persistence = {
+      persistUserState = DAL.UserManagement.persist
+      persistGroupState = DAL.GroupManagement.persist
+      persistRoleState = DAL.RoleManagement.persist
+    }
+
     printfn "Composing the actors..."
-    let actorGroups = composeActors system
+    let actorGroups = composeActors system persistence
 
     let userCommandRequestReplyCanceled = 
       RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 

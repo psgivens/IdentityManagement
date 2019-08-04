@@ -26,8 +26,6 @@ type GroupManagementEvent =
 type GroupManagementState =
     { Name:string; Users: UserId list; Groups: Guid list; Deleted: bool }
 
-// FIXME: Make me command handler agnostic so that I can unit test. 
-// TODO: Pass in a dependency injection object
 let handle (command:CommandHandlers<GroupManagementEvent, Version>) (state:GroupManagementState option) (cmdenv:Envelope<GroupManagementCommand>) =
     match state, cmdenv.Item with 
     | None, Create name -> Created name

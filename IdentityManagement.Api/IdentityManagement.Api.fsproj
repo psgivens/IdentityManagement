@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src/Dtos.fs" />
+    <Compile Include="src/Composition.fs" />
     <Compile Include="src/ProcessingSystem.fs" />
     <Compile Include="src/RestQuery.fs" />
     <Compile Include="src/UserCommands.fs" />

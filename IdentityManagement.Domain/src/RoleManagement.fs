@@ -22,8 +22,6 @@ type RoleManagementEvent =
 type RoleManagementState =
     { Name:string; ExternalId:Guid; Principals: Guid list; Deleted: bool }
 
-// FIXME: Make me command handler agnostic so that I can unit test. 
-// TODO: Pass in a dependency injection object
 let handle (command:CommandHandlers<RoleManagementEvent, Version>) (state:RoleManagementState option) (cmdenv:Envelope<RoleManagementCommand>) =    
     match state, cmdenv.Item with 
     | None, Create roleInfo -> Created roleInfo

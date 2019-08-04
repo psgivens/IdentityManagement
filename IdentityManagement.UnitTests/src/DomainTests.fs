@@ -6,27 +6,13 @@ open Common.FSharp
 
 open FSharp.Data
 
-
-
 open EventSourceGherkin
 open Common.FSharp.CommandHandlers
 open Common.FSharp.Envelopes
 module GroupManagementGherkin =
     open IdentityManagement.Domain.GroupManagement
 
-    // TODO: Evaluate the following in relation to command testing
-    // let raiseVersionedEvent (version:Version) event =
-    //     incrementVersion version
-    // //  raiseVersionedEvent mailbox'.Self cmdenv
-    // let commandHandlers = CommandHandlers raiseVersionedEvent
-    // let handle' = handle commandHandlers
-
     let buildState = List.fold evolve 
-
-    // let evolve' s e = evolve s e 
-    // let buildState state el =
-    //     el
-    //     |> List.fold evolve' state
 
     let testing = 
         TestConditions<GroupManagementCommand, GroupManagementEvent, GroupManagementState> 
