@@ -39,6 +39,9 @@ let initialize () =
     let system = Configuration.defaultConfig () |> System.create "sample-system"
             
     let persistence = {
+      userManagementStore = UserManagementEventStore ()
+      groupManagementStore = GroupManagementEventStore ()
+      roleManagementStore = RoleManagementEventStore ()
       persistUserState = DAL.UserManagement.persist
       persistGroupState = DAL.GroupManagement.persist
       persistRoleState = DAL.RoleManagement.persist

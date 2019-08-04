@@ -1,5 +1,9 @@
 namespace IdentityManagement.UnitTests
 
+open IdentityManagement.Domain.UserManagement
+open IdentityManagement.Domain.GroupManagement
+open IdentityManagement.Domain.RoleManagement
+
 open IdentityManagement.Api.Composition
 open System
 open Xunit
@@ -13,11 +17,24 @@ open Common.FSharp.Envelopes
 module infr =
   let doNotPersist<'a> (uid:UserId) (sid:StreamId) (state:'a option) = ()
 
+type InMemoryEventStore<'a> () =
+  [<DefaultValue>] val mutable events : Map<StreamId, Envelope<'a> list>
+  interface IEventStore<'a> with
+    member this.GetEvents (streamId:StreamId) =
+      this.events.[streamId]
+      |> Seq.toList 
+      |> List.sortBy(fun x -> x.Version)
+    member this.AppendEvent (envelope:Envelope<'a>) =
+      this.events <- this.events |> Map.add envelope.StreamId (envelope::this.events.[envelope.StreamId])
+
 type SampleTest1 ()  =
 
     let system = Configuration.defaultConfig () |> System.create "sample-system"
 
     let persistence = {
+      userManagementStore = InMemoryEventStore<UserManagementEvent> ()
+      groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
+      roleManagementStore = InMemoryEventStore<RoleManagementEvent> ()
       persistUserState = infr.doNotPersist
       persistGroupState = infr.doNotPersist
       persistRoleState = infr.doNotPersist

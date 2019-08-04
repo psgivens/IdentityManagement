@@ -31,6 +31,9 @@ type ActorGroups = {
     }
 
 type Persistence = {
+  userManagementStore: IEventStore<UserManagementEvent>
+  groupManagementStore: IEventStore<GroupManagementEvent>
+  roleManagementStore: IEventStore<RoleManagementEvent>
   persistUserState: UserId -> StreamId -> UserManagementState option -> unit
   persistGroupState: UserId -> StreamId -> GroupManagementState option -> unit
   persistRoleState: UserId -> StreamId -> RoleManagementState option -> unit
@@ -40,33 +43,39 @@ let composeActors system persistence =
     // Create member management actors
     let userManagementActors = 
         EventSourcingActors.spawn 
-            (system,
+            (
+             persistence.userManagementStore,
+             persistence.persistUserState,
              "userManagement", 
-             UserManagementEventStore (),
+             system,
              buildState UserManagement.evolve,
              // Dependency Injection would happen here by passing it to `handle`
-             UserManagement.handle,
-             persistence.persistUserState)
+             UserManagement.handle
+             )
 
     let groupManagementActors = 
         EventSourcingActors.spawn
-            (system,
+            (
+             persistence.groupManagementStore,
+             persistence.persistGroupState,
              "groupManagement",
-             GroupManagementEventStore (),
+             system,
              buildState GroupManagement.evolve,
              // Dependency Injection would happen here by passing it to `handle`
-             GroupManagement.handle,
-             persistence.persistGroupState)
+             GroupManagement.handle
+             )
 
     let roleManagementActors =
         EventSourcingActors.spawn   
-            (system,
+            (
+             persistence.roleManagementStore,
+             persistence.persistRoleState,
              "roleManagement",
-             RoleManagementEventStore (),
+             system,
              buildState RoleManagement.evolve,
              // Dependency Injection would happen here by passing it to `handle`
-             RoleManagement.handle,
-             persistence.persistRoleState)
+             RoleManagement.handle
+            )
              
     { UserManagementActors=userManagementActors
       GroupManagementActors=groupManagementActors
