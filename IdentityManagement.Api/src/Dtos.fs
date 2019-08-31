@@ -17,6 +17,10 @@ type GroupMemberDto = {
   id : string
   name : string }
 
+type NewGroupDto = {
+  name : string
+}
+
 type GroupDto = { 
   id : string
   name : string

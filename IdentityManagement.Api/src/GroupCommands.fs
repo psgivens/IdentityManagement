@@ -22,7 +22,7 @@ open IdentityManagement.Domain
 
 let private tellActor = sendEnvelope actorGroups.GroupManagementActors.Tell 
 
-let postNewGroup (dto:GroupDto) = 
+let postNewGroup (dto:NewGroupDto) = 
   let newGroupId = StreamId.create ()
 
   let commandToActor =

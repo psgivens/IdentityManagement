@@ -1,0 +1,31 @@
+
+persistentvolume/persistent-volume-pgsql-identity created
+onfigmap/iam-id-mgmt-dbconfigs created
+ervice/iam-id-mgmt-db created
+statefulset.apps/iam-id-mgmt-db created
+Wait for the service to become online...
+phase: Pending
+phase: Pending
+phase: Pending
+phase: Pending
+phase: Pending
+phase: Running
+System ready
+Initializing the database with 'dotnet ef database update'
+job.batch/iam-id-mgmt-job-initialize-db created
+Wait for database initialization job to finish...
+phase: Pending
+phase: Pending
+phase: Running
+phase: Running
+phase: Running
+phase: Succeeded
+Applying migration '20190505004232_Initial_Database'.
+Done.
+Deleting job
+job.batch "iam-id-mgmt-job-initialize-db" deleted
+ervice/iam-id-mgmt-db-service-nodeport created
+eplicaset.apps/iam-id-mgmt-api-service created
+ervice/iam-id-mgmt-api-service-public created
+ervice/iam-id-mgmt-api-service-nodeport created
+P

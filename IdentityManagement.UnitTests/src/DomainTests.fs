@@ -22,52 +22,42 @@ module GroupManagementGherkin =
     let When  = testing.When
     let Then  = testing.Then
 
-
-
-
-
-
-
-
-
 open IdentityManagement.Domain.GroupManagement
+
 
 let initialState =
     { GroupManagementState.Name="sample"
       GroupManagementState.Users=[]
       GroupManagementState.Groups=[]
       GroupManagementState.Deleted=false }
+    |> Some
 
 let evolve evts = 
-    // let folder = 
-    // evts |> IdentityManagement.Domain.GroupManagement.ev
+    let evolve' = IdentityManagement.Domain.GroupManagement.evolve
+    evts |> Seq.fold evolve' initialState
 
-    let folder state item =
-        state
-
-    evts |> Seq.fold folder initialState
-
-// let openTests = TestConditions<
-
+open GroupManagementGherkin
 type DomainTests ()  =
 
     [<Fact>]
     member this.``My test`` () =
-        Http.RequestString("http://tomasp.net") |> fun x -> printfn "%d" x.Length
 
-        // Download web site asynchronously
-        async { let! html = Http.AsyncRequestString("http://tomasp.net")
-            printfn "%d" html.Length }
-        |> Async.Start
-        Assert.True(true)
-
+        Given (State None)
+        |> When ([GroupManagementEvent.Created "sampleGroup"] |> Events)
+        |> Then (expectState (
+                    { Name="sampleGroup"
+                      Users=[]
+                      Groups=[] 
+                      Deleted=false }
+                    |> Some))
 
     [<Fact>]
     member this.``My second test`` () =
-        Http.RequestString("http://tomasp.net") |> fun x -> printfn "%d" x.Length
-
-        // Download web site asynchronously
-        async { let! html = Http.AsyncRequestString("http://tomasp.net")
-            printfn "%d" html.Length }
-        |> Async.Start
-        Assert.True(true)
+        Given (State None)
+        |> When ([GroupManagementEvent.Created "sampleGroup"] |> Events)
+        |> Then (expectState (
+                    { Name="sampleGroup"
+                      Users=[]
+                      Groups=[] 
+                      Deleted=false }
+                    |> Some))

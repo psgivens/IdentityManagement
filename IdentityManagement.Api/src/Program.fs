@@ -76,7 +76,7 @@ let defaultArgument x y = defaultArg y x
 let main argv =
     printfn "main argv"
 
-    let config = { defaultConfig with  bindings = [ HttpBinding.createSimple HTTP "0.0.0.0" 2080 ]}
+    let config = { defaultConfig with  bindings = [ HttpBinding.createSimple HTTP "0.0.0.0" 2083 ]}
 
     actorGroups |> ignore 
     

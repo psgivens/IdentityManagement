@@ -2,46 +2,9 @@
 
 sudo iptables -P FORWARD ACCEPT
 
-
-kubectl run --generator=run-pod/v1 curl --image tutum/curl -l app=curl 
-
-kubectl exec tutum/curl -- curl -s 'http://iam-id-mgmt-api-serivce-public:2080'
-
-
-$domain = "http://localhost"
-
-$domain = "http://localhost:2080"
-
-$domain = "http://localhost:32081"
-
-
-# Cluster-Ip of node port
-$domain="http://10.152.183.157:2080"
-
-$domain="http://10.152.183.157"
-
-# Node port
-$domain = "http://localhost:32080"
-
-# Node port - Assumes blairstone is set in your hosts file 
-$domain = "http://blairstone:32080"
-
-# Function Invoke-ErrorRequest {
-#     param(
-#         [Parameter(Mandatory=$true)]
-#         [string]$Uri
-#     )
-#     $response = try { 
-#         (Invoke-WebRequest -Uri $Uri ).BaseResponse
-#     } catch [System.Net.WebException] { 
-#         Write-Verbose "An exception was caught: $($_.Exception.Message)"
-#         $_.Exception.Response 
-# 
-#         #then convert the status code enum to int by doing this
-#         $statusCodeInt = $response.BaseResponse.StatusCode
-#     } 
-#     $statusCodeInt
-# }
+# Extra
+# $domain = "http://localhost:2020"
+# $domain = "http://localhost:32081"
 
 
 $contextHeaders = @{
@@ -49,52 +12,7 @@ $contextHeaders = @{
     transaction_id='638d111c-c7bb-4710-8ea2-91c4bc3ea530'
 }
 
-
-$contextHeaders = @{
-    user_id='Phillip Scott Givens'
-    transaction_id='somevalue'
-}
-
-# # bad request
-# $err = Invoke-ErrorRequest `
-#   -Uri $domain 
-# $err
-
-$domain="http://pomodoro.poms"
-
-$domain="http://localhost"
-
-Invoke-WebRequest `
-  -Method GET `
-  -Uri $domain/foo
-
-# Default route
-Invoke-WebRequest `
-  -Method GET `
-  -Uri $domain `
-  -Headers $contextHeaders 
-    
-
-Write-Host $domain
-# Default route
-Invoke-WebRequest `
-  -Method GET `
-  -Uri "$domain" 
-
-
-
-sudo iptables -P FORWARD ACCEPT
-
-$domain = "http://10.152.183.114:32081"
-
-$domain = "http://10.152.183.202:32080"
-
-$domain = "http://10.152.183.90:2080"
-
-
 $domain = "http://localhost:32080"
-
-$domain = "http://localhost:32081"
 
 Write-Host $domain
 # Default route
@@ -102,9 +20,12 @@ Invoke-WebRequest `
   -Method GET `
   -Uri "$domain/ping" 
 
-
-
-
+# Default route
+Invoke-WebRequest `
+  -Method GET `
+  -Uri $domain `
+  -Headers $contextHeaders 
+    
 
 # Default route
 $users = Invoke-RestMethod `
@@ -117,6 +38,14 @@ $users | measure | %{ if ($_.Count -lt 1) { Write-Error "no users found." }
     $users | Format-Table
   }
 }
+
+
+Invoke-WebRequest `
+  -Method GET `
+  -Uri "$domain/ping" 
+
+
+
 
 
 # Default route
