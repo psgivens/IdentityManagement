@@ -7,12 +7,9 @@
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="src/Gherkin.fs" />
+  <ItemGroup>    
+    <Compile Include="src/Tests.fs" />
     <Compile Include="src/UsersTests.fs" />
-    <Compile Include="src/GroupsTests.fs" />
-    <Compile Include="src/RolesTests.fs" />
-    <Compile Include="src/Template.fs" />
     <Compile Include="src/Program.fs" />
   </ItemGroup>
 
@@ -28,6 +25,6 @@
     <ProjectReference Include="..\IdentityManagement.Domain\IdentityManagement.Domain.fsproj" />
     <ProjectReference Include="..\..\Common.FSharp\Common.FSharp\Common.FSharp.fsproj" />
     <ProjectReference Include="..\IdentityManagement.Api\IdentityManagement.Api.fsproj" />
-  </ItemGroup>
+  </ItemGroup>  
 
 </Project>

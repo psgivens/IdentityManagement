@@ -17,40 +17,21 @@ open Akka.FSharp
 
 
 
-type UsersTests ()  =
+type TestTemplate () =
 
     [<Fact>]
-    member this.``Create and update user`` () =
+    member this.``Copy this and modify to meet your needs`` () =
       (*********************************************
        *** Create some sample data for the test  ***
        *********************************************)
-      let userDetails =
-        { 
-            FirstName="Phillip"
-            LastName="Givens"
-            Email="one@three.com"
-        }
-
-      let changedDetails = { 
-        userDetails with
-          Email="one@four.com" }
-
-      let expectedUserState = 
-        { UserManagementState.Details = changedDetails
-          UserManagementState.State = Active }
 
 
       (*********************************************
        *** Describe the expectations in Gherkin  ***
        *********************************************)
       UserGherkin.Given (State None)
-      |> UserGherkin.When (Events [ 
-        UserManagementEvent.Created userDetails
-        Deactivated
-        Updated changedDetails
-        Activated
-         ])
-      |> UserGherkin.Then (expectState (Some (expectedUserState)))
+      |> UserGherkin.When (Events [])
+      |> UserGherkin.Then (expectState (None))
 
 
       (******************************* 
@@ -78,13 +59,8 @@ type UsersTests ()  =
        *** Perform the action ***
        **************************)
       let streamId = StreamId.create ()
-      printfn "Creating user..."
 
-      [ UserManagementCommand
-          .Create userDetails
-        Deactivate
-        Update changedDetails
-        Activate ]
+      [ (* UserManagementCommand.Activate *) ]
       |> List.iter (fun command ->
         command
         |> Tests.envelop streamId
@@ -107,6 +83,6 @@ type UsersTests ()  =
       (************************
        *** Verify the state ***
        ************************)
-      Assert.Equal (Some expectedUserState, state)
+      Assert.Equal (None, state)
 
 

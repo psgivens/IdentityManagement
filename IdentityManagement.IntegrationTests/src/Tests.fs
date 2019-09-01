@@ -1,11 +1,10 @@
-namespace IdentityManagement.UnitTests
+namespace IdentityManagement.IntegrationTests
 
 open System
 open Xunit
 open Common.FSharp
 
 open FSharp.Data
-
 
 type Test1 ()  =
 

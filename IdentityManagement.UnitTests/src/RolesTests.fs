@@ -15,12 +15,10 @@ open Common.FSharp.EventSourceGherkin
 open Akka.Actor
 open Akka.FSharp
 
-
-
-type UsersTests ()  =
+type RolesTests ()  =
 
     [<Fact>]
-    member this.``Create and update user`` () =
+    member this.``Create user`` () =
       (*********************************************
        *** Create some sample data for the test  ***
        *********************************************)
@@ -31,12 +29,8 @@ type UsersTests ()  =
             Email="one@three.com"
         }
 
-      let changedDetails = { 
-        userDetails with
-          Email="one@four.com" }
-
       let expectedUserState = 
-        { UserManagementState.Details = changedDetails
+        { UserManagementState.Details = userDetails
           UserManagementState.State = Active }
 
 
@@ -44,12 +38,7 @@ type UsersTests ()  =
        *** Describe the expectations in Gherkin  ***
        *********************************************)
       UserGherkin.Given (State None)
-      |> UserGherkin.When (Events [ 
-        UserManagementEvent.Created userDetails
-        Deactivated
-        Updated changedDetails
-        Activated
-         ])
+      |> UserGherkin.When (Events [ UserManagementEvent.Created userDetails ])
       |> UserGherkin.Then (expectState (Some (expectedUserState)))
 
 
@@ -80,16 +69,11 @@ type UsersTests ()  =
       let streamId = StreamId.create ()
       printfn "Creating user..."
 
-      [ UserManagementCommand
-          .Create userDetails
-        Deactivate
-        Update changedDetails
-        Activate ]
-      |> List.iter (fun command ->
-        command
-        |> Tests.envelop streamId
-        |> userCommandRequestReplyCanceled.Ask 
-        |> runWaitAndIgnore )
+      userDetails
+      |> UserManagementCommand.Create
+      |> Tests.envelop streamId
+      |> userCommandRequestReplyCanceled.Ask 
+      |> runWaitAndIgnore
 
       (*************************
        *** Evolve the events ***
