@@ -27,6 +27,11 @@ open Suave
 open Common.FSharp.Suave
 
 
+open IdentityManagement.Data.Models
+
+open Microsoft.EntityFrameworkCore
+
+
 let initialize () = 
     printfn "Resolve newtonsoft..."
 
@@ -37,14 +42,17 @@ let initialize () =
     initializeDatabase ()
     
     let system = Configuration.defaultConfig () |> System.create "sample-system"
-            
+
+    let connectionString = System.IO.File.ReadAllText("config/IdentityManagementDbContext.connectionstring")
+    let options = (new DbContextOptionsBuilder<IdentityManagementDbContext> ()).UseNpgsql(connectionString).Options
+
     let persistence = {
       userManagementStore = UserManagementEventStore ()
       groupManagementStore = GroupManagementEventStore ()
       roleManagementStore = RoleManagementEventStore ()
-      persistUserState = DAL.UserManagement.persist
-      persistGroupState = DAL.GroupManagement.persist
-      persistRoleState = DAL.RoleManagement.persist
+      persistUserState = DAL.UserManagement.persist options
+      persistGroupState = DAL.GroupManagement.persist options
+      persistRoleState = DAL.RoleManagement.persist options
     }
 
     printfn "Composing the actors..."

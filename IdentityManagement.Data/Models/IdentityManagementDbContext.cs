@@ -8,13 +8,16 @@ namespace IdentityManagement.Data.Models {
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         { 
-            var connectionString = System.IO.File.ReadAllText("config/IdentityManagementDbContext.connectionstring");
-            // FIXME: Pull this information from somewhere else
-            // https://stackoverflow.com/questions/52156484/how-exactly-does-microsoft-extensions-configuration-dependent-on-asp-net-core
-            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-2.1
-            // https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.jsonconfigurationextensions.addjsonfile?view=aspnetcore-2.2#Microsoft_Extensions_Configuration_JsonConfigurationExtensions_AddJsonFile_Microsoft_Extensions_Configuration_IConfigurationBuilder_System_String_
-            // var connectionString = "User ID=samplesam;Password=Password1;Host=pomodoro-pgsql;Port=5432;Database=IdentityManagementDb;Pooling=true;";
-            optionsBuilder.UseNpgsql(connectionString);
+            if (!optionsBuilder.IsConfigured)
+            {
+                var connectionString = System.IO.File.ReadAllText("config/IdentityManagementDbContext.connectionstring");
+                // FIXME: Pull this information from somewhere else
+                // https://stackoverflow.com/questions/52156484/how-exactly-does-microsoft-extensions-configuration-dependent-on-asp-net-core
+                // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-2.1
+                // https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.jsonconfigurationextensions.addjsonfile?view=aspnetcore-2.2#Microsoft_Extensions_Configuration_JsonConfigurationExtensions_AddJsonFile_Microsoft_Extensions_Configuration_IConfigurationBuilder_System_String_
+                // var connectionString = "User ID=samplesam;Password=Password1;Host=pomodoro-pgsql;Port=5432;Database=IdentityManagementDb;Pooling=true;";
+                optionsBuilder.UseNpgsql(connectionString);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

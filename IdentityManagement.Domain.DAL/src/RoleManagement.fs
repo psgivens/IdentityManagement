@@ -5,9 +5,11 @@ open Common.FSharp.Envelopes
 open IdentityManagement.Domain.DomainTypes
 open IdentityManagement.Domain.RoleManagement
 
+open Microsoft.EntityFrameworkCore
+
 let defaultDT = "1/1/1900" |> System.DateTime.Parse
-let persist (userId:UserId) (streamId:StreamId) (state:RoleManagementState option) =
-    use context = new IdentityManagementDbContext () 
+let persist (options:DbContextOptions<IdentityManagementDbContext>) (userId:UserId) (streamId:StreamId) (state:RoleManagementState option) =
+    use context = new IdentityManagementDbContext (options)
     let entity = context.Roles.Find (StreamId.unbox streamId)
     let addMember (r:Role) id = 
         r.Members.Add(

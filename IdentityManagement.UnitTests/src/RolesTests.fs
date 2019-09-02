@@ -15,7 +15,40 @@ open Common.FSharp.EventSourceGherkin
 open Akka.Actor
 open Akka.FSharp
 
+open IdentityManagement.Data.Models
+open Microsoft.Data.Sqlite
+open Microsoft.EntityFrameworkCore
+
 type RolesTests ()  =
+
+    [<Fact>]
+    member this.``Access database`` () =
+
+      let connection = new SqliteConnection("DataSource=:memory:")
+      connection.Open()
+      let options = (new DbContextOptionsBuilder<IdentityManagementDbContext> ()).UseSqlite(connection).Options;
+
+      use context = new IdentityManagementDbContext (options)
+      context.Database.EnsureCreated() |> ignore
+
+      let id = Guid.NewGuid()
+      use context' = new IdentityManagementDbContext (options)
+      context'.UserEvents.Add (
+          UserEventEnvelopeEntity (  Id = id,
+                                  StreamId = Guid.NewGuid (),
+                                  UserId = Guid.NewGuid (),
+                                  TransactionId = Guid.NewGuid (),
+                                  Version = 0s,
+                                  TimeStamp = DateTimeOffset.Now ,
+                                  Event = "{'key':'value'}"
+                                  )) |> ignore         
+      context'.SaveChanges () |> ignore
+
+      use context'' = new IdentityManagementDbContext (options)
+      let x = context''.UserEvents |> Seq.head
+      Assert.Equal (id, x.Id)
+
+
 
     [<Fact>]
     member this.``Create role, add user, update title`` () =
@@ -53,21 +86,13 @@ type RolesTests ()  =
        *******************************)      
       let system = Configuration.defaultConfig () |> System.create "sample-system"
 
-      let persistence = {
-        userManagementStore = InMemoryEventStore<UserManagementEvent> ()
-        groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
-        roleManagementStore = InMemoryEventStore<RoleManagementEvent> ()
-        persistUserState = doNotPersist
-        persistGroupState = doNotPersist
-        persistRoleState = doNotPersist
-      }
+      let persistence = Composition.createPersistenceLayer ()
 
       let actorGroups = composeActors system persistence
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
           system "role_management_command" actorGroups.RoleManagementActors
-
 
       (**************************
        *** Perform the action ***
@@ -142,6 +167,11 @@ type RolesTests ()  =
        *** Create the Actor system *** 
        *******************************)      
       let system = Configuration.defaultConfig () |> System.create "sample-system"
+      
+      // let persistence' = Composition.createPersistenceLayer ()
+      // let persistence = { 
+      //   persistence' with 
+      //     roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
 
       let persistence = {
         userManagementStore = InMemoryEventStore<UserManagementEvent> ()
@@ -169,6 +199,14 @@ type RolesTests ()  =
 
       [ RemovePrincipal userId1 ]
       |> List.iter processCommand
+
+      // FIXME Something is preventing this test from finishing. 
+      // This doesn't seem to work.
+      // system.Terminate () 
+      // |> Async.AwaitTask
+      // |> Async.Ignore
+      // |> Async.RunSynchronously      
+      // system.Dispose ()
 
       (*************************
        *** Evolve the events ***
@@ -230,14 +268,19 @@ type RolesTests ()  =
        *******************************)      
       let system = Configuration.defaultConfig () |> System.create "sample-system"
 
-      let persistence = {
-        userManagementStore = InMemoryEventStore<UserManagementEvent> ()
-        groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
-        roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore)
-        persistUserState = doNotPersist
-        persistGroupState = doNotPersist
-        persistRoleState = doNotPersist
-      }
+      let persistence' = Composition.createPersistenceLayer ()
+      let persistence = { 
+        persistence' with 
+          roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
+
+      // let persistence = {
+      //   userManagementStore = InMemoryEventStore<UserManagementEvent> ()
+      //   groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
+      //   roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore)
+      //   persistUserState = doNotPersist
+      //   persistGroupState = doNotPersist
+      //   persistRoleState = doNotPersist
+      // }
 
       let actorGroups = composeActors system persistence
 

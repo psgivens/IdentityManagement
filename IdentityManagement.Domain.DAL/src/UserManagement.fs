@@ -5,9 +5,11 @@ open Common.FSharp.Envelopes
 open IdentityManagement.Domain.DomainTypes
 open IdentityManagement.Domain.UserManagement
 
+open Microsoft.EntityFrameworkCore
+
 let defaultDT = "1/1/1900" |> System.DateTime.Parse
-let persist (userId:UserId) (streamId:StreamId) (state:UserManagementState option) =
-    use context = new IdentityManagementDbContext () 
+let persist (options:DbContextOptions<IdentityManagementDbContext>) (userId:UserId) (streamId:StreamId) (state:UserManagementState option) =
+    use context = new IdentityManagementDbContext (options) 
     let entity = context.Users.Find (StreamId.unbox streamId)
     match entity, state with
     | null, Option.None -> ()

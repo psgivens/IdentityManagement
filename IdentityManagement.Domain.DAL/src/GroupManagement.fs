@@ -6,10 +6,11 @@ open IdentityManagement.Domain.DomainTypes
 open IdentityManagement.Domain.GroupManagement
 
 open Newtonsoft.Json
+open Microsoft.EntityFrameworkCore
 
 let defaultDT = "1/1/1900" |> System.DateTime.Parse
-let persist (userId:UserId) (streamId:StreamId) (state:GroupManagementState option) =
-    use context = new IdentityManagementDbContext () 
+let persist (options:DbContextOptions<IdentityManagementDbContext>) (userId:UserId) (streamId:StreamId) (state:GroupManagementState option) =
+    use context = new IdentityManagementDbContext (options) 
     let entity = context.Groups.Find (StreamId.unbox streamId)
     let addMember (g:Group) id = 
         g.MemberRelations.Add(

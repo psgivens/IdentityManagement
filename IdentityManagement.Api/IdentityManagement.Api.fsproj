@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup>      
     <ProjectReference Include="..\IdentityManagement.Data\IdentityManagement.Data.csproj" />
     <ProjectReference Include="..\IdentityManagement.Domain\IdentityManagement.Domain.fsproj" />
     <ProjectReference Include="..\IdentityManagement.Domain.DAL\IdentityManagement.Domain.DAL.fsproj" />

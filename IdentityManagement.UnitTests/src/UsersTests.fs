@@ -60,14 +60,16 @@ type UsersTests ()  =
        *******************************)      
       let system = Configuration.defaultConfig () |> System.create "sample-system"
 
-      let persistence = {
-        userManagementStore = InMemoryEventStore<UserManagementEvent> ()
-        groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
-        roleManagementStore = InMemoryEventStore<RoleManagementEvent> ()
-        persistUserState = doNotPersist
-        persistGroupState = doNotPersist
-        persistRoleState = doNotPersist
-      }
+      let persistence = Composition.createPersistenceLayer ()
+
+      // let persistence = {
+      //   userManagementStore = InMemoryEventStore<UserManagementEvent> ()
+      //   groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
+      //   roleManagementStore = InMemoryEventStore<RoleManagementEvent> ()
+      //   persistUserState = doNotPersist
+      //   persistGroupState = doNotPersist
+      //   persistRoleState = doNotPersist
+      // }
 
       let actorGroups = composeActors system persistence
 
