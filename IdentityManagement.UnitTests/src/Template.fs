@@ -70,15 +70,13 @@ type TestTemplate () =
       (*************************
        *** Evolve the events ***
        *************************)
-      let evolve evts = 
-        let evolve' = IdentityManagement.Domain.UserManagement.evolve
-        evts |> Seq.fold evolve' None
-
       let events = 
         persistence.userManagementStore.GetEvents streamId
-        |> Seq.map (fun env -> env.Item) 
+        |> List.map (fun env -> env.Item) 
 
-      let state = events |> evolve
+      let state = 
+        events 
+        |> List.fold IdentityManagement.Domain.UserManagement.evolve None
 
       (************************
        *** Verify the state ***

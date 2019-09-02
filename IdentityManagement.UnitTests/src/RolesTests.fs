@@ -86,15 +86,13 @@ type RolesTests ()  =
       (*************************
        *** Evolve the events ***
        *************************)
-      let evolve evts = 
-        let evolve' = IdentityManagement.Domain.RoleManagement.evolve
-        evts |> Seq.fold evolve' None
-
       let events = 
         persistence.roleManagementStore.GetEvents streamId
-        |> Seq.map (fun env -> env.Item) 
+        |> List.map (fun env -> env.Item) 
 
-      let state = events |> evolve
+      let state = 
+        events 
+        |> List.fold IdentityManagement.Domain.RoleManagement.evolve None
 
       (************************
        *** Verify the state ***
@@ -175,15 +173,14 @@ type RolesTests ()  =
       (*************************
        *** Evolve the events ***
        *************************)
-      let evolve evts = 
-        let evolve' = IdentityManagement.Domain.RoleManagement.evolve
-        evts |> Seq.fold evolve' None
-
       let events = 
         persistence.roleManagementStore.GetEvents streamId
-        |> Seq.map (fun env -> env.Item) 
+        |> List.map (fun env -> env.Item) 
 
-      let state = events |> evolve
+      let state = 
+        events 
+        |> List.fold IdentityManagement.Domain.RoleManagement.evolve None
+
 
       (************************
        *** Verify the state ***
@@ -263,15 +260,13 @@ type RolesTests ()  =
       (*************************
        *** Evolve the events ***
        *************************)
-      let evolve evts = 
-        let evolve' = IdentityManagement.Domain.RoleManagement.evolve
-        evts |> Seq.fold evolve' None
-
       let events = 
         persistence.roleManagementStore.GetEvents streamId
-        |> Seq.map (fun env -> env.Item) 
+        |> List.map (fun env -> env.Item) 
 
-      let state = events |> evolve
+      let state = 
+        events 
+        |> List.fold IdentityManagement.Domain.RoleManagement.evolve None
 
       (************************
        *** Verify the state ***
