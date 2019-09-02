@@ -24,6 +24,8 @@ type UsersTests ()  =
       (*********************************************
        *** Create some sample data for the test  ***
        *********************************************)
+      let streamId = StreamId.create ()
+
       let userDetails =
         { 
             FirstName="Phillip"
@@ -77,9 +79,6 @@ type UsersTests ()  =
       (**************************
        *** Perform the action ***
        **************************)
-      let streamId = StreamId.create ()
-      printfn "Creating user..."
-
       [ UserManagementCommand
           .Create userDetails
         Deactivate
