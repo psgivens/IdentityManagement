@@ -22,17 +22,20 @@ open Microsoft.Data.Sqlite
 open Microsoft.EntityFrameworkCore
 
 module Composition =
-    let getDbContextOptions () = 
+    let getDbConnection () = 
         let connection = new SqliteConnection("DataSource=:memory:")
         connection.Open()
+        connection
+
+    let getDbContextOptions (connection:Data.Common.DbConnection) = 
         let options = (new DbContextOptionsBuilder<IdentityManagementDbContext> ()).UseSqlite(connection).Options;
-  
+          
         use context = new IdentityManagementDbContext (options)
         context.Database.EnsureCreated() |> ignore
         options
 
-    let createPersistenceLayer () =
-        let options = getDbContextOptions ()
+    let createPersistenceLayer connection =
+        let options = getDbContextOptions connection
         let persistence = {
             userManagementStore = InMemoryEventStore<UserManagementEvent> ()
             groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()

@@ -60,7 +60,8 @@ type UsersTests ()  =
        *******************************)      
       let system = Configuration.defaultConfig () |> System.create "sample-system"
 
-      let persistence = Composition.createPersistenceLayer ()
+      use connection = Composition.getDbConnection ()
+      let persistence = Composition.createPersistenceLayer connection
 
       // let persistence = {
       //   userManagementStore = InMemoryEventStore<UserManagementEvent> ()

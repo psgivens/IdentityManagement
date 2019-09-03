@@ -24,7 +24,7 @@ type RolesTests ()  =
     [<Fact>]
     member this.``Access database`` () =
 
-      let connection = new SqliteConnection("DataSource=:memory:")
+      use connection = new SqliteConnection("DataSource=:memory:")
       connection.Open()
       let options = (new DbContextOptionsBuilder<IdentityManagementDbContext> ()).UseSqlite(connection).Options;
 
@@ -86,7 +86,8 @@ type RolesTests ()  =
        *******************************)      
       let system = Configuration.defaultConfig () |> System.create "sample-system"
 
-      let persistence = Composition.createPersistenceLayer ()
+      use connection = Composition.getDbConnection ()
+      let persistence = Composition.createPersistenceLayer connection
 
       let actorGroups = composeActors system persistence
 
@@ -101,6 +102,11 @@ type RolesTests ()  =
         Tests.envelop streamId
         >> roleCommandRequestReplyCanceled.Ask 
         >> runWaitAndIgnore 
+
+      // FIXME foreign key constraint
+      // AddPrincipal throws a foreign key constraint. Likely because we don't 
+      // have that particular principal in the database. Strangely, this isn't 
+      // a problem in the 'Remove a user' test. 
 
       [ RoleManagementCommand
           .Create (roleName, externalId)
@@ -168,19 +174,20 @@ type RolesTests ()  =
        *******************************)      
       let system = Configuration.defaultConfig () |> System.create "sample-system"
       
-      // let persistence' = Composition.createPersistenceLayer ()
-      // let persistence = { 
-      //   persistence' with 
-      //     roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
+      use connection = Composition.getDbConnection ()
+      let persistence' = Composition.createPersistenceLayer connection
+      let persistence = { 
+        persistence' with 
+          roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
 
-      let persistence = {
-        userManagementStore = InMemoryEventStore<UserManagementEvent> ()
-        groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
-        roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore)
-        persistUserState = doNotPersist
-        persistGroupState = doNotPersist
-        persistRoleState = doNotPersist
-      }
+      // let persistence = {
+      //   userManagementStore = InMemoryEventStore<UserManagementEvent> ()
+      //   groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
+      //   roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore)
+      //   persistUserState = doNotPersist
+      //   persistGroupState = doNotPersist
+      //   persistRoleState = doNotPersist
+      // }
 
       let actorGroups = composeActors system persistence
 
@@ -268,7 +275,8 @@ type RolesTests ()  =
        *******************************)      
       let system = Configuration.defaultConfig () |> System.create "sample-system"
 
-      let persistence' = Composition.createPersistenceLayer ()
+      use connection = Composition.getDbConnection ()
+      let persistence' = Composition.createPersistenceLayer connection
       let persistence = { 
         persistence' with 
           roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
