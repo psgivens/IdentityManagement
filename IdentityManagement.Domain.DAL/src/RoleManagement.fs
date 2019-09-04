@@ -10,7 +10,12 @@ open Microsoft.EntityFrameworkCore
 let defaultDT = "1/1/1900" |> System.DateTime.Parse
 let persist (options:DbContextOptions<IdentityManagementDbContext>) (userId:UserId) (streamId:StreamId) (state:RoleManagementState option) =
     use context = new IdentityManagementDbContext (options)
-    let entity = context.Roles.Find (StreamId.unbox streamId)
+    let entity = query {
+        for r in context.Roles.Include "Members" do
+        where (r.Id = (StreamId.unbox streamId))
+        select r
+        exactlyOneOrDefault
+    }
     let addMember (r:Role) id = 
         r.Members.Add(
             RolePrincipalMap(
@@ -29,9 +34,11 @@ let persist (options:DbContextOptions<IdentityManagementDbContext>) (userId:User
         item.Principals |> List.iter (addMember role)
         context.Roles.Add role |> ignore
         printfn "Persist mh: (%s)" item.Name
-    | _, Option.None -> context.Roles.Remove entity |> ignore        
+    | _, Option.None -> 
+        context.Roles.Remove entity |> ignore        
     | _, Some(item) -> 
         entity.Name <- item.Name
+        entity.Members.Clear ()
         item.Principals |> List.iter (addMember entity)
     context.SaveChanges () |> ignore
     

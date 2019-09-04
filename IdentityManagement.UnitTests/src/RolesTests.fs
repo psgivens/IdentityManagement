@@ -51,7 +51,7 @@ type RolesTests ()  =
 
 
     [<Fact>]
-    member this.``Create role, add user, update title`` () =
+    member this.``Create role_ add user_ update title`` () =
       (*********************************************
        *** Create some sample data for the test  ***
        *********************************************)
@@ -84,7 +84,7 @@ type RolesTests ()  =
       (******************************* 
        *** Create the Actor system *** 
        *******************************)      
-      let system = Configuration.defaultConfig () |> System.create "sample-system"
+      use system = Configuration.defaultConfig () |> System.create "sample-system"
 
       use connection = Composition.getDbConnection ()
       let persistence = Composition.createPersistenceLayer connection
@@ -102,11 +102,19 @@ type RolesTests ()  =
         Tests.envelop streamId
         >> roleCommandRequestReplyCanceled.Ask 
         >> runWaitAndIgnore 
+      
+      let connectionOptions = Composition.getDbContextOptions connection
 
-      // FIXME foreign key constraint
-      // AddPrincipal throws a foreign key constraint. Likely because we don't 
-      // have that particular principal in the database. Strangely, this isn't 
-      // a problem in the 'Remove a user' test. 
+      use context = new IdentityManagementDbContext (connectionOptions)
+      context.Users.Add (
+        User (
+          Id = newUserId,
+          FirstName = "Sample",
+          LastName = "Sarah",
+          Email = "Sample@Sarah.com"
+        )
+      ) |> ignore
+      context.SaveChanges () |> ignore
 
       [ RoleManagementCommand
           .Create (roleName, externalId)
@@ -180,15 +188,6 @@ type RolesTests ()  =
         persistence' with 
           roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
 
-      // let persistence = {
-      //   userManagementStore = InMemoryEventStore<UserManagementEvent> ()
-      //   groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
-      //   roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore)
-      //   persistUserState = doNotPersist
-      //   persistGroupState = doNotPersist
-      //   persistRoleState = doNotPersist
-      // }
-
       let actorGroups = composeActors system persistence
 
       let roleCommandRequestReplyCanceled = 
@@ -206,14 +205,6 @@ type RolesTests ()  =
 
       [ RemovePrincipal userId1 ]
       |> List.iter processCommand
-
-      // FIXME Something is preventing this test from finishing. 
-      // This doesn't seem to work.
-      // system.Terminate () 
-      // |> Async.AwaitTask
-      // |> Async.Ignore
-      // |> Async.RunSynchronously      
-      // system.Dispose ()
 
       (*************************
        *** Evolve the events ***
@@ -280,15 +271,6 @@ type RolesTests ()  =
       let persistence = { 
         persistence' with 
           roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
-
-      // let persistence = {
-      //   userManagementStore = InMemoryEventStore<UserManagementEvent> ()
-      //   groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
-      //   roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore)
-      //   persistUserState = doNotPersist
-      //   persistGroupState = doNotPersist
-      //   persistRoleState = doNotPersist
-      // }
 
       let actorGroups = composeActors system persistence
 
