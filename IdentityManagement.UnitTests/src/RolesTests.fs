@@ -95,16 +95,11 @@ type RolesTests ()  =
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
           system "role_management_command" actorGroups.RoleManagementActors
 
-      (**************************
-       *** Perform the action ***
-       **************************)
-      let processCommand = 
-        Tests.envelop streamId
-        >> roleCommandRequestReplyCanceled.Ask 
-        >> runWaitAndIgnore 
-      
-      let connectionOptions = Composition.getDbContextOptions connection
 
+      (*********************************
+       *** Initialize pre-conditions ***
+       *********************************)
+      let connectionOptions = Composition.getDbContextOptions connection
       use context = new IdentityManagementDbContext (connectionOptions)
       context.Users.Add (
         User (
@@ -116,11 +111,21 @@ type RolesTests ()  =
       ) |> ignore
       context.SaveChanges () |> ignore
 
+
+      (**************************
+       *** Perform the action ***
+       **************************)
+      let processCommand = 
+        Tests.envelop streamId
+        >> roleCommandRequestReplyCanceled.Ask 
+        >> runWaitAndIgnore 
+
       [ RoleManagementCommand
           .Create (roleName, externalId)
         AddPrincipal newUserId
         UpdateName newRoleName ]
       |> List.iter processCommand
+
 
       (*************************
        *** Evolve the events ***
@@ -132,6 +137,7 @@ type RolesTests ()  =
       let state = 
         events 
         |> List.fold IdentityManagement.Domain.RoleManagement.evolve None
+
 
       (************************
        *** Verify the state ***
@@ -197,7 +203,6 @@ type RolesTests ()  =
       (**************************
        *** Perform the action ***
        **************************)
-
       let processCommand = 
         Tests.envelop streamId
         >> roleCommandRequestReplyCanceled.Ask 
