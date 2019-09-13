@@ -48,6 +48,9 @@ namespace IdentityManagement.Data.Models
 
         public System.Guid RoleId { get; set; }
         public Role Role { get; set; }
+
+        public System.Guid? GroupId { get; set; }
+        public Group Group { get; set; }
     }
 
 }

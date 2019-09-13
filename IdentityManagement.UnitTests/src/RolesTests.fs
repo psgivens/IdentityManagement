@@ -49,7 +49,6 @@ type RolesTests ()  =
       Assert.Equal (id, x.Id)
 
 
-
     [<Fact>]
     member this.``Create role_ add user_ update title`` () =
       (*********************************************
@@ -144,7 +143,27 @@ type RolesTests ()  =
        ************************)
       Assert.Equal (Some expectedState, state)
 
+      (*********************************
+       *** Verify the Query DB state ***
+       *********************************)
+      let entityId = StreamId.unbox streamId
 
+      let mapping = query {
+        for m in context.RolePrincipalMaps do
+        where (m.PrincipalId = newUserId && m.RoleId = entityId)
+        select m
+        exactlyOneOrDefault
+      }
+
+      // // TODO: Replace this query with just the role-prin-map that we want. 
+      // let entity = query {
+      //   for r in context.Roles.Include "Members" do
+      //   where (r.Id = entityId)
+      //   select r
+      //   exactlyOneOrDefault
+      // }
+
+      Assert.Equal (true, not (isNull mapping))
 
     [<Fact>]
     member this.``Remove user from a role`` () =
