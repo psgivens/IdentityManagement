@@ -41,12 +41,13 @@ let initialize () =
     NewtonsoftHack.resolveNewtonsoft ()  
 
     printfn "Creating a new database..."
-    initializeDatabase ()
+    
     
     let system = Configuration.defaultConfig () |> System.create "sample-system"
 
     let connectionString = System.IO.File.ReadAllText("config/IdentityManagementDbContext.connectionstring")
     let options = (new DbContextOptionsBuilder<IdentityManagementDbContext> ()).UseNpgsql(connectionString).Options
+    initializeDatabase options
 
     let mappingDal = RoleUserMappingDAL options 
 
@@ -55,18 +56,16 @@ let initialize () =
       RoleGroupUserRelationActor.updateGroupUsers = mappingDal.AddGroupUsersToRole
       RoleGroupUserRelationActor.removeRoleGroupUser = mappingDal.RemoveRoleGroupUser
       RoleGroupUserRelationActor.addRoleGroupUser = mappingDal.AddRoleGroupUser
+      RoleGroupUserRelationActor.getRoles = mappingDal.GetRoles
     }
 
-    let getRoles groupId = Seq.empty<Guid>
-
     let persistence = {
-      userManagementStore = UserManagementEventStore ()
-      groupManagementStore = GroupManagementEventStore ()
-      roleManagementStore = RoleManagementEventStore ()
+      userManagementStore = UserManagementEventStore options
+      groupManagementStore = GroupManagementEventStore options
+      roleManagementStore = RoleManagementEventStore options
       persistUserState = DAL.UserManagement.persist options
       persistGroupState = DAL.GroupManagement.persist options
       persistRoleState = DAL.RoleManagement.persist options
-      getRoles = getRoles
       persistRoleUserMappings = mappingDalMethods
     }
 

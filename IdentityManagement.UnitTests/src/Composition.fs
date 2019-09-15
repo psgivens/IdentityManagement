@@ -24,7 +24,9 @@ open Microsoft.Data.Sqlite
 open Microsoft.EntityFrameworkCore
 
 module Composition =
+
     let getDbConnection () = 
+        // let connection = new SqliteConnection("DataSource=test.db")
         let connection = new SqliteConnection("DataSource=:memory:")
         connection.Open()
         connection
@@ -45,6 +47,7 @@ module Composition =
           RoleGroupUserRelationActor.updateGroupUsers = mappingDal.AddGroupUsersToRole
           RoleGroupUserRelationActor.removeRoleGroupUser = mappingDal.RemoveRoleGroupUser
           RoleGroupUserRelationActor.addRoleGroupUser = mappingDal.AddRoleGroupUser
+          RoleGroupUserRelationActor.getRoles = mappingDal.GetRoles
         }
 
         let persistence = {
@@ -55,8 +58,22 @@ module Composition =
             persistGroupState = DAL.GroupManagement.persist options
             persistRoleState = DAL.RoleManagement.persist options
             persistRoleUserMappings = mappingDalMethods
-            getRoles = fun groupId -> Seq.empty<Guid>
         }
         
         persistence
-  
+    type TestSystemResources () = 
+        let system = Configuration.defaultConfig () |> System.create "sample-system"
+        let connection = getDbConnection ()
+        
+        member this.System = system
+        member this.Connection = connection
+
+        member this.TermateActors () = 
+            this.System.Terminate ()
+            |> Async.AwaitTask
+            |> Async.RunSynchronously 
+
+        interface IDisposable with
+            member this.Dispose () = 
+                this.TermateActors ()
+                this.Connection.Dispose ()               

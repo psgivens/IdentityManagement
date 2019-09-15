@@ -82,19 +82,18 @@ type RolesTests ()  =
 
       (******************************* 
        *** Create the Actor system *** 
-       *******************************)      
-      use system = Configuration.defaultConfig () |> System.create "sample-system"
+       *******************************)
+      use testResources = new Composition.TestSystemResources ()
+      
+      let persistence = Composition.createPersistenceLayer testResources.Connection
 
-      use connection = Composition.getDbConnection ()
-      let persistence = Composition.createPersistenceLayer connection
-
-      let actorGroups = composeActors persistence system
+      let actorGroups = composeActors persistence testResources.System
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
-          system "role_management_command" actorGroups.RoleManagementActors
+          testResources.System "role_management_command" actorGroups.RoleManagementActors
 
-      let connectionOptions = Composition.getDbContextOptions connection
+      let connectionOptions = Composition.getDbContextOptions testResources.Connection
       use context = new IdentityManagementDbContext (connectionOptions)
 
       (*********************************
@@ -155,14 +154,6 @@ type RolesTests ()  =
         exactlyOneOrDefault
       }
 
-      // // TODO: Replace this query with just the role-prin-map that we want. 
-      // let entity = query {
-      //   for r in context.Roles.Include "Members" do
-      //   where (r.Id = entityId)
-      //   select r
-      //   exactlyOneOrDefault
-      // }
-
       Assert.Equal (true, not (isNull mapping))
 
 
@@ -213,26 +204,24 @@ type RolesTests ()  =
       (******************************* 
        *** Create the Actor system *** 
        *******************************)      
-      use system = Configuration.defaultConfig () |> System.create "sample-system"
-
-      use connection = Composition.getDbConnection ()
-      let persistence = Composition.createPersistenceLayer connection
-
-      let actorGroups = composeActors persistence system
+      use testResources = new Composition.TestSystemResources ()
+      
+      let persistence = Composition.createPersistenceLayer testResources.Connection
+      let actorGroups = composeActors persistence testResources.System
 
       let userCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 
-          system "user_management_command" actorGroups.UserManagementActors
+          testResources.System "user_management_command" actorGroups.UserManagementActors
 
       let groupCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<GroupManagementCommand, GroupManagementEvent> 
-          system "group_management_command" actorGroups.GroupManagementActors
+          testResources.System "group_management_command" actorGroups.GroupManagementActors
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
-          system "role_management_command" actorGroups.RoleManagementActors
+          testResources.System "role_management_command" actorGroups.RoleManagementActors
 
-      let connectionOptions = Composition.getDbContextOptions connection
+      let connectionOptions = Composition.getDbContextOptions testResources.Connection
       use context = new IdentityManagementDbContext (connectionOptions)
 
       (*********************************
@@ -286,6 +275,9 @@ type RolesTests ()  =
        *** Verify the Query DB state ***
        *********************************)
       let entityId = StreamId.unbox roleStreamId
+
+      // Terminate the actors makes us wait until all active messages are complete.
+      testResources.TermateActors ()
 
       let mapping = query {
         for m in context.RolePrincipalMaps do
@@ -342,26 +334,24 @@ type RolesTests ()  =
       (******************************* 
        *** Create the Actor system *** 
        *******************************)      
-      use system = Configuration.defaultConfig () |> System.create "sample-system"
+      use testResources = new Composition.TestSystemResources ()
+      let persistence = Composition.createPersistenceLayer testResources.Connection
 
-      use connection = Composition.getDbConnection ()
-      let persistence = Composition.createPersistenceLayer connection
-
-      let actorGroups = composeActors persistence system
+      let actorGroups = composeActors persistence testResources.System
 
       let userCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 
-          system "user_management_command" actorGroups.UserManagementActors
+          testResources.System "user_management_command" actorGroups.UserManagementActors
 
       let groupCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<GroupManagementCommand, GroupManagementEvent> 
-          system "group_management_command" actorGroups.GroupManagementActors
+          testResources.System "group_management_command" actorGroups.GroupManagementActors
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
-          system "role_management_command" actorGroups.RoleManagementActors
+          testResources.System "role_management_command" actorGroups.RoleManagementActors
 
-      let connectionOptions = Composition.getDbContextOptions connection
+      let connectionOptions = Composition.getDbContextOptions testResources.Connection
       use context = new IdentityManagementDbContext (connectionOptions)
 
       (*********************************
@@ -392,12 +382,11 @@ type RolesTests ()  =
 
       (**************************
        *** Perform the action ***
-       **************************)
+       **************************)    
       [ GroupManagementCommand
           .AddUser userId ]
       |> List.iter processGroupCommand
-
-
+    
       (*************************
        *** Evolve the events ***
        *************************)
@@ -419,6 +408,9 @@ type RolesTests ()  =
        *** Verify the Query DB state ***
        *********************************)
       let entityId = StreamId.unbox roleStreamId
+
+      // Terminate the actors makes us wait until all active messages are complete.
+      testResources.TermateActors ()
 
       let mapping = query {
         for m in context.RolePrincipalMaps do
@@ -471,19 +463,17 @@ type RolesTests ()  =
       (******************************* 
        *** Create the Actor system *** 
        *******************************)      
-      let system = Configuration.defaultConfig () |> System.create "sample-system"
-      
-      use connection = Composition.getDbConnection ()
-      let persistence' = Composition.createPersistenceLayer connection
+      use testResources = new Composition.TestSystemResources ()
+      let persistence' = Composition.createPersistenceLayer testResources.Connection
       let persistence = { 
         persistence' with 
           roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
 
-      let actorGroups = composeActors persistence system
+      let actorGroups = composeActors persistence testResources.System
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
-          system "role_management_command" actorGroups.RoleManagementActors
+          testResources.System "role_management_command" actorGroups.RoleManagementActors
 
       (**************************
        *** Perform the action ***
@@ -554,19 +544,18 @@ type RolesTests ()  =
       (******************************* 
        *** Create the Actor system *** 
        *******************************)      
-      let system = Configuration.defaultConfig () |> System.create "sample-system"
+      use testResources = new Composition.TestSystemResources ()
 
-      use connection = Composition.getDbConnection ()
-      let persistence' = Composition.createPersistenceLayer connection
+      let persistence' = Composition.createPersistenceLayer testResources.Connection
       let persistence = { 
         persistence' with 
           roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
 
-      let actorGroups = composeActors persistence system
+      let actorGroups = composeActors persistence testResources.System
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
-          system "role_management_command" actorGroups.RoleManagementActors
+          testResources.System "role_management_command" actorGroups.RoleManagementActors
 
 
       (**************************

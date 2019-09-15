@@ -58,25 +58,13 @@ type UsersTests ()  =
       (******************************* 
        *** Create the Actor system *** 
        *******************************)      
-      let system = Configuration.defaultConfig () |> System.create "sample-system"
-
-      use connection = Composition.getDbConnection ()
-      let persistence = Composition.createPersistenceLayer connection
-
-      // let persistence = {
-      //   userManagementStore = InMemoryEventStore<UserManagementEvent> ()
-      //   groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
-      //   roleManagementStore = InMemoryEventStore<RoleManagementEvent> ()
-      //   persistUserState = doNotPersist
-      //   persistGroupState = doNotPersist
-      //   persistRoleState = doNotPersist
-      // }
-
-      let actorGroups = composeActors persistence system
+      use testResources = new Composition.TestSystemResources ()
+      let persistence = Composition.createPersistenceLayer testResources.Connection
+      let actorGroups = composeActors persistence testResources.System
 
       let userCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 
-          system "user_management_command" actorGroups.UserManagementActors
+          testResources.System "user_management_command" actorGroups.UserManagementActors
 
 
       (**************************

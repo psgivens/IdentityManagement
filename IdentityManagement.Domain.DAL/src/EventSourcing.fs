@@ -26,17 +26,17 @@ type IdentityManagementDbContext with
             })
 
 open IdentityManagement.Domain.UserManagement
-type UserManagementEventStore () =
+type UserManagementEventStore (options:DbContextOptions<IdentityManagementDbContext>) =
     interface IEventStore<UserManagementEvent> with
         member this.GetEvents (streamId:StreamId) =
-            use context = new  IdentityManagementDbContext ()
+            use context = new  IdentityManagementDbContext (options)
             streamId
             |> context.GetAggregateEvents (fun i -> i.UserEvents) 
             |> Seq.toList 
             |> List.sortBy(fun x -> x.Version)
         member this.AppendEvent (envelope:Envelope<UserManagementEvent>) =
             try
-                use context = new IdentityManagementDbContext ()
+                use context = new IdentityManagementDbContext (options)
                 context.UserEvents.Add (
                     UserEventEnvelopeEntity (  Id = envelope.Id,
                                             StreamId = StreamId.unbox envelope.StreamId,
@@ -54,17 +54,17 @@ type UserManagementEventStore () =
 
 
 open IdentityManagement.Domain.GroupManagement
-type GroupManagementEventStore () =
+type GroupManagementEventStore (options:DbContextOptions<IdentityManagementDbContext>) =
     interface IEventStore<GroupManagementEvent> with
         member this.GetEvents (streamId:StreamId) =
-            use context = new  IdentityManagementDbContext ()
+            use context = new  IdentityManagementDbContext (options)
             streamId
             |> context.GetAggregateEvents (fun i -> i.GroupEvents) 
             |> Seq.toList 
             |> List.sortBy(fun x -> x.Version)
         member this.AppendEvent (envelope:Envelope<GroupManagementEvent>) =
             try
-                use context = new IdentityManagementDbContext ()
+                use context = new IdentityManagementDbContext (options)
                 context.GroupEvents.Add (
                     GroupEventEnvelopeEntity (  Id = envelope.Id,
                                             StreamId = StreamId.unbox envelope.StreamId,
@@ -80,17 +80,17 @@ type GroupManagementEventStore () =
                 | ex -> System.Diagnostics.Debugger.Break () 
 
 open IdentityManagement.Domain.RoleManagement
-type RoleManagementEventStore () =
+type RoleManagementEventStore (options:DbContextOptions<IdentityManagementDbContext>) =
     interface IEventStore<RoleManagementEvent> with
         member this.GetEvents (streamId:StreamId) =
-            use context = new  IdentityManagementDbContext ()
+            use context = new  IdentityManagementDbContext (options)
             streamId
             |> context.GetAggregateEvents (fun i -> i.RoleEvents) 
             |> Seq.toList 
             |> List.sortBy(fun x -> x.Version)
         member this.AppendEvent (envelope:Envelope<RoleManagementEvent>) =
             try
-                use context = new IdentityManagementDbContext ()
+                use context = new IdentityManagementDbContext (options)
                 context.RoleEvents.Add (
                     RoleEventEnvelopeEntity (  Id = envelope.Id,
                                             StreamId = StreamId.unbox envelope.StreamId,

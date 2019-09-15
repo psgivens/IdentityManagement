@@ -18,7 +18,7 @@ open  IdentityManagement.Api.RoleGroupUserRelationActor.Commands
 
 let spawn
     (   roleGroupUserUpdater:IActorRef,
-        getRoles: Guid -> Guid seq,
+        getRoles: Guid -> Guid list,
         name,
         sys
     ) :IActorRef = 

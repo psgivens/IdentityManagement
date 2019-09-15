@@ -42,7 +42,6 @@ type Persistence = {
   persistUserState: UserId -> StreamId -> UserManagementState option -> unit
   persistGroupState: UserId -> StreamId -> GroupManagementState option -> unit
   persistRoleState: UserId -> StreamId -> RoleManagementState option -> unit
-  getRoles: Guid -> Guid seq
   persistRoleUserMappings: RoleGroupUserRelationActor.RoleGroupUserRelationDal
 }
 
@@ -93,7 +92,7 @@ let composeActors (persistence:Persistence) system =
     let translationActor = 
         TranslationActor.spawn
             ( roleGroupUserRelationActor,
-              persistence.getRoles,
+              persistence.persistRoleUserMappings.getRoles,
               "translationActor", 
               system )
 

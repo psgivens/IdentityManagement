@@ -34,6 +34,7 @@ type RoleGroupUserRelationDal = {
     updateGroupUsers:    Guid -> Guid -> unit
     removeRoleGroupUser: Guid -> Guid -> Guid -> unit
     addRoleGroupUser:    Guid -> Guid -> Guid -> unit
+    getRoles:            Guid -> Guid list
 }
 
 let spawn
@@ -50,11 +51,11 @@ let spawn
             | :? Commands.RoleGroupUserEnvelope<RoleManagementEvent> as env -> 
                 match env.command with
                 | Commands.RoleGroupUserCommands.UpdateRoleGroupMappings ->
-                    dal.removeGroupUsers env.roleId env.groupId
-
-                | Commands.RoleGroupUserCommands.RemoveRoleGroupMappings ->
                     dal.updateGroupUsers env.roleId env.groupId
 
+                | Commands.RoleGroupUserCommands.RemoveRoleGroupMappings ->                    
+                    dal.removeGroupUsers env.roleId env.groupId
+                    
                 | _ -> ()
 
             | :? Commands.RoleGroupUserEnvelope<GroupManagementEvent> as env -> 
