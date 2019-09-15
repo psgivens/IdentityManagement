@@ -30,6 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\IdentityManagement.Data\IdentityManagement.Data.csproj" />
     <ProjectReference Include="..\IdentityManagement.Domain\IdentityManagement.Domain.fsproj" />
+    <ProjectReference Include="..\IdentityManagement.Domain.DAL\IdentityManagement.Domain.DAL.fsproj" />
     <ProjectReference Include="..\..\Common.FSharp\Common.FSharp\Common.FSharp.fsproj" />
     <ProjectReference Include="..\IdentityManagement.Api\IdentityManagement.Api.fsproj" />
   </ItemGroup>

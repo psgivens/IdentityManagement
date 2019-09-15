@@ -88,18 +88,18 @@ type RolesTests ()  =
       use connection = Composition.getDbConnection ()
       let persistence = Composition.createPersistenceLayer connection
 
-      let actorGroups = composeActors system persistence
+      let actorGroups = composeActors persistence system
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
           system "role_management_command" actorGroups.RoleManagementActors
 
+      let connectionOptions = Composition.getDbContextOptions connection
+      use context = new IdentityManagementDbContext (connectionOptions)
 
       (*********************************
        *** Initialize pre-conditions ***
        *********************************)
-      let connectionOptions = Composition.getDbContextOptions connection
-      use context = new IdentityManagementDbContext (connectionOptions)
       context.Users.Add (
         User (
           Id = newUserId,
@@ -165,6 +165,272 @@ type RolesTests ()  =
 
       Assert.Equal (true, not (isNull mapping))
 
+
+
+
+    [<Fact>]
+    member this.``Create role_ add user to group_ add group to role`` () =
+      (*********************************************
+       *** Create some sample data for the test  ***
+       *********************************************)
+      let userStreamId = StreamId.create ()
+      let groupStreamId = StreamId.create ()
+      let roleStreamId = StreamId.create ()
+
+      let userDetails =
+        { 
+            FirstName="Phillip"
+            LastName="Givens"
+            Email="one@three.com"
+        }
+      let userIdGuid = StreamId.unbox userStreamId
+      let userId = UserId.box userIdGuid
+
+      let groupName = "GreatGuys"
+      let groupId = StreamId.unbox groupStreamId
+
+      let roleName = "SystemAdmins"
+      let externalRoleId = Guid.NewGuid ()
+
+      let expectedState = 
+        { RoleManagementState.Name = roleName
+          ExternalId = externalRoleId
+          Principals = [groupId]
+          Deleted = false }
+
+
+      (*********************************************
+       *** Describe the expectations in Gherkin  ***
+       *********************************************)
+      RoleGherkin.Given (State None)
+      |> RoleGherkin.When (Events [ 
+        RoleManagementEvent.Created (roleName, externalRoleId) 
+        PrincipalAdded groupId
+        ])
+      |> RoleGherkin.Then (expectState (Some (expectedState)))
+
+
+      (******************************* 
+       *** Create the Actor system *** 
+       *******************************)      
+      use system = Configuration.defaultConfig () |> System.create "sample-system"
+
+      use connection = Composition.getDbConnection ()
+      let persistence = Composition.createPersistenceLayer connection
+
+      let actorGroups = composeActors persistence system
+
+      let userCommandRequestReplyCanceled = 
+        RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 
+          system "user_management_command" actorGroups.UserManagementActors
+
+      let groupCommandRequestReplyCanceled = 
+        RequestReplyActor.spawnRequestReplyActor<GroupManagementCommand, GroupManagementEvent> 
+          system "group_management_command" actorGroups.GroupManagementActors
+
+      let roleCommandRequestReplyCanceled = 
+        RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
+          system "role_management_command" actorGroups.RoleManagementActors
+
+      let connectionOptions = Composition.getDbContextOptions connection
+      use context = new IdentityManagementDbContext (connectionOptions)
+
+      (*********************************
+       *** Initialize pre-conditions ***
+       *********************************)
+      let processCommand (rra:IActorRef) streamId = 
+        Tests.envelop streamId
+        >> rra.Ask 
+        >> runWaitAndIgnore 
+
+      let processUserCommand = 
+        processCommand userCommandRequestReplyCanceled userStreamId
+      [ UserManagementCommand.Create userDetails ]
+      |> List.iter processUserCommand
+
+      let processGroupCommand = 
+        processCommand groupCommandRequestReplyCanceled groupStreamId
+      [ GroupManagementCommand.Create groupName
+        GroupManagementCommand.AddUser userId ]
+      |> List.iter processGroupCommand
+
+
+      (**************************
+       *** Perform the action ***
+       **************************)
+      let processRoleCommand = processCommand roleCommandRequestReplyCanceled roleStreamId
+        
+      [ RoleManagementCommand
+          .Create (roleName, externalRoleId)
+        AddPrincipal groupId ]
+      |> List.iter processRoleCommand
+
+      (*************************
+       *** Evolve the events ***
+       *************************)
+      let events = 
+        persistence.roleManagementStore.GetEvents roleStreamId
+        |> List.map (fun env -> env.Item) 
+
+      let state = 
+        events 
+        |> List.fold IdentityManagement.Domain.RoleManagement.evolve None
+
+
+      (************************
+       *** Verify the state ***
+       ************************)
+      Assert.Equal (Some expectedState, state)
+
+      (*********************************
+       *** Verify the Query DB state ***
+       *********************************)
+      let entityId = StreamId.unbox roleStreamId
+
+      let mapping = query {
+        for m in context.RolePrincipalMaps do
+        where (m.PrincipalId = userIdGuid && m.RoleId = entityId)
+        select m
+        headOrDefault
+      }
+
+      Assert.Equal (true, not (isNull mapping))
+
+
+    [<Fact>]
+    member this.``Create role_ add group to role_ add user to group`` () =
+      (*********************************************
+       *** Create some sample data for the test  ***
+       *********************************************)
+      let userStreamId = StreamId.create ()
+      let groupStreamId = StreamId.create ()
+      let roleStreamId = StreamId.create ()
+
+      let userDetails =
+        { 
+            FirstName="Phillip"
+            LastName="Givens"
+            Email="one@three.com"
+        }
+      let userIdGuid = StreamId.unbox userStreamId
+      let userId = UserId.box userIdGuid
+
+      let groupName = "GreatGuys"
+      let groupId = StreamId.unbox groupStreamId
+
+      let roleName = "SystemAdmins"
+      let externalRoleId = Guid.NewGuid ()
+
+      let expectedState = 
+        { RoleManagementState.Name = roleName
+          ExternalId = externalRoleId
+          Principals = [groupId]
+          Deleted = false }
+
+
+      (*********************************************
+       *** Describe the expectations in Gherkin  ***
+       *********************************************)
+      RoleGherkin.Given (State None)
+      |> RoleGherkin.When (Events [ 
+        RoleManagementEvent.Created (roleName, externalRoleId) 
+        PrincipalAdded groupId
+        ])
+      |> RoleGherkin.Then (expectState (Some (expectedState)))
+
+
+      (******************************* 
+       *** Create the Actor system *** 
+       *******************************)      
+      use system = Configuration.defaultConfig () |> System.create "sample-system"
+
+      use connection = Composition.getDbConnection ()
+      let persistence = Composition.createPersistenceLayer connection
+
+      let actorGroups = composeActors persistence system
+
+      let userCommandRequestReplyCanceled = 
+        RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 
+          system "user_management_command" actorGroups.UserManagementActors
+
+      let groupCommandRequestReplyCanceled = 
+        RequestReplyActor.spawnRequestReplyActor<GroupManagementCommand, GroupManagementEvent> 
+          system "group_management_command" actorGroups.GroupManagementActors
+
+      let roleCommandRequestReplyCanceled = 
+        RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
+          system "role_management_command" actorGroups.RoleManagementActors
+
+      let connectionOptions = Composition.getDbContextOptions connection
+      use context = new IdentityManagementDbContext (connectionOptions)
+
+      (*********************************
+       *** Initialize pre-conditions ***
+       *********************************)
+      let processCommand (rra:IActorRef) streamId = 
+        Tests.envelop streamId
+        >> rra.Ask 
+        >> runWaitAndIgnore 
+
+      let processUserCommand = 
+        processCommand userCommandRequestReplyCanceled userStreamId
+      [ UserManagementCommand.Create userDetails ]
+      |> List.iter processUserCommand
+
+      let processGroupCommand = 
+        processCommand groupCommandRequestReplyCanceled groupStreamId
+      [ GroupManagementCommand
+          .Create groupName ]
+      |> List.iter processGroupCommand
+
+      let processRoleCommand = processCommand roleCommandRequestReplyCanceled roleStreamId        
+      [ RoleManagementCommand
+          .Create (roleName, externalRoleId)
+        AddPrincipal groupId ]
+      |> List.iter processRoleCommand
+
+
+      (**************************
+       *** Perform the action ***
+       **************************)
+      [ GroupManagementCommand
+          .AddUser userId ]
+      |> List.iter processGroupCommand
+
+
+      (*************************
+       *** Evolve the events ***
+       *************************)
+      let events = 
+        persistence.roleManagementStore.GetEvents roleStreamId
+        |> List.map (fun env -> env.Item) 
+
+      let state = 
+        events 
+        |> List.fold IdentityManagement.Domain.RoleManagement.evolve None
+
+
+      (************************
+       *** Verify the state ***
+       ************************)
+      Assert.Equal (Some expectedState, state)
+
+      (*********************************
+       *** Verify the Query DB state ***
+       *********************************)
+      let entityId = StreamId.unbox roleStreamId
+
+      let mapping = query {
+        for m in context.RolePrincipalMaps do
+        where (m.PrincipalId = userIdGuid && m.RoleId = entityId)
+        select m
+        headOrDefault
+      }
+
+      Assert.Equal (true, not (isNull mapping))
+
+
+
     [<Fact>]
     member this.``Remove user from a role`` () =
       (*********************************************
@@ -213,7 +479,7 @@ type RolesTests ()  =
         persistence' with 
           roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
 
-      let actorGroups = composeActors system persistence
+      let actorGroups = composeActors persistence system
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
@@ -296,7 +562,7 @@ type RolesTests ()  =
         persistence' with 
           roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
 
-      let actorGroups = composeActors system persistence
+      let actorGroups = composeActors persistence system
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 

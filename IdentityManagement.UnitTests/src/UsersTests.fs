@@ -72,7 +72,7 @@ type UsersTests ()  =
       //   persistRoleState = doNotPersist
       // }
 
-      let actorGroups = composeActors system persistence
+      let actorGroups = composeActors persistence system
 
       let userCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 

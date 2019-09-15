@@ -24,6 +24,11 @@ open Common.FSharp
 open Suave
 open Common.FSharp.Suave
 
+open IdentityManagement.Domain.DAL
+
+open IdentityManagement.Api
+
+
 type ActorGroups = {
     UserManagementActors:ActorIO<UserManagementCommand>
     GroupManagementActors:ActorIO<GroupManagementCommand>
@@ -37,9 +42,11 @@ type Persistence = {
   persistUserState: UserId -> StreamId -> UserManagementState option -> unit
   persistGroupState: UserId -> StreamId -> GroupManagementState option -> unit
   persistRoleState: UserId -> StreamId -> RoleManagementState option -> unit
+  getRoles: Guid -> Guid seq
+  persistRoleUserMappings: RoleGroupUserRelationActor.RoleGroupUserRelationDal
 }
 
-let composeActors system persistence =
+let composeActors (persistence:Persistence) system =
     // Create member management actors
     let userManagementActors = 
         EventSourcingActors.spawn 
@@ -76,7 +83,23 @@ let composeActors system persistence =
              // Dependency Injection would happen here by passing it to `handle`
              RoleManagement.handle
             )
-             
+
+    let roleGroupUserRelationActor = 
+        RoleGroupUserRelationActor.spawn
+            ( persistence.persistRoleUserMappings,
+              "role_group_user_relation",
+              system )    
+
+    let translationActor = 
+        TranslationActor.spawn
+            ( roleGroupUserRelationActor,
+              persistence.getRoles,
+              "translationActor", 
+              system )
+
+    translationActor |> SubjectActor.subscribeTo groupManagementActors.Events
+    translationActor |> SubjectActor.subscribeTo roleManagementActors.Events
+
     { UserManagementActors=userManagementActors
       GroupManagementActors=groupManagementActors
       RoleManagementActors=roleManagementActors }

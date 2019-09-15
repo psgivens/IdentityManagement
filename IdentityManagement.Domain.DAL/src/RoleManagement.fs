@@ -43,12 +43,12 @@ let persist (options:DbContextOptions<IdentityManagementDbContext>) (userId:User
         | null -> ()
         | group -> 
             group.MemberRelations
-            |> Seq.iter (fun m ->
-              r.Members.Add(
-                RolePrincipalMap(
+            |> Seq.iter (fun m -> 
+              r.Members.Add (
+                RolePrincipalMap (
                     PrincipalId=m.PrincipalId,
-                    GroupId=System.Nullable id
-                )))        
+                    GroupId=System.Nullable id))
+                )        
 
     match entity, state with
     | null, Option.None -> ()

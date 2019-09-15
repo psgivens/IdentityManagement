@@ -18,8 +18,8 @@ type GroupManagementEvent =
     | Created of string
     | Deleted
     | UserAdded of UserId
-    | GroupAdded of Guid
     | UserRemoved of UserId
+    | GroupAdded of Guid
     | GroupRemoved of Guid
     | NameUpdated of string
 

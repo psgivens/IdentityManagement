@@ -5,7 +5,9 @@ open IdentityManagement.Domain.UserManagement
 open IdentityManagement.Domain.GroupManagement
 open IdentityManagement.Domain.RoleManagement
 open IdentityManagement.Domain
+open IdentityManagement.Domain.DAL.RoleGroupUserRelations
 
+open IdentityManagement.Api
 open IdentityManagement.Api.Composition
 open System
 open Xunit
@@ -36,6 +38,15 @@ module Composition =
 
     let createPersistenceLayer connection =
         let options = getDbContextOptions connection
+
+        let mappingDal = RoleUserMappingDAL options 
+        let mappingDalMethods = {
+          RoleGroupUserRelationActor.removeGroupUsers = mappingDal.RemoveGroupUsersFromRole
+          RoleGroupUserRelationActor.updateGroupUsers = mappingDal.AddGroupUsersToRole
+          RoleGroupUserRelationActor.removeRoleGroupUser = mappingDal.RemoveRoleGroupUser
+          RoleGroupUserRelationActor.addRoleGroupUser = mappingDal.AddRoleGroupUser
+        }
+
         let persistence = {
             userManagementStore = InMemoryEventStore<UserManagementEvent> ()
             groupManagementStore = InMemoryEventStore<GroupManagementEvent> ()
@@ -43,6 +54,8 @@ module Composition =
             persistUserState = DAL.UserManagement.persist options
             persistGroupState = DAL.GroupManagement.persist options
             persistRoleState = DAL.RoleManagement.persist options
+            persistRoleUserMappings = mappingDalMethods
+            getRoles = fun groupId -> Seq.empty<Guid>
         }
         
         persistence

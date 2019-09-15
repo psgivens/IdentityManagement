@@ -31,6 +31,8 @@ open IdentityManagement.Data.Models
 
 open Microsoft.EntityFrameworkCore
 
+open IdentityManagement.Domain.DAL.RoleGroupUserRelations
+
 
 let initialize () = 
     printfn "Resolve newtonsoft..."
@@ -46,6 +48,17 @@ let initialize () =
     let connectionString = System.IO.File.ReadAllText("config/IdentityManagementDbContext.connectionstring")
     let options = (new DbContextOptionsBuilder<IdentityManagementDbContext> ()).UseNpgsql(connectionString).Options
 
+    let mappingDal = RoleUserMappingDAL options 
+
+    let mappingDalMethods = {
+      RoleGroupUserRelationActor.removeGroupUsers = mappingDal.RemoveGroupUsersFromRole
+      RoleGroupUserRelationActor.updateGroupUsers = mappingDal.AddGroupUsersToRole
+      RoleGroupUserRelationActor.removeRoleGroupUser = mappingDal.RemoveRoleGroupUser
+      RoleGroupUserRelationActor.addRoleGroupUser = mappingDal.AddRoleGroupUser
+    }
+
+    let getRoles groupId = Seq.empty<Guid>
+
     let persistence = {
       userManagementStore = UserManagementEventStore ()
       groupManagementStore = GroupManagementEventStore ()
@@ -53,10 +66,12 @@ let initialize () =
       persistUserState = DAL.UserManagement.persist options
       persistGroupState = DAL.GroupManagement.persist options
       persistRoleState = DAL.RoleManagement.persist options
+      getRoles = getRoles
+      persistRoleUserMappings = mappingDalMethods
     }
 
     printfn "Composing the actors..."
-    let actorGroups = composeActors system persistence
+    let actorGroups = composeActors persistence system 
 
     let userCommandRequestReplyCanceled = 
       RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 

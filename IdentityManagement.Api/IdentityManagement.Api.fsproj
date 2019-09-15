@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src/Dtos.fs" />
+    <Compile Include="src/RoleGroupUserRelationActor.fs" />    
+    <Compile Include="src/TranslationActor.fs" />
     <Compile Include="src/Composition.fs" />
     <Compile Include="src/ProcessingSystem.fs" />
     <Compile Include="src/RestQuery.fs" />
