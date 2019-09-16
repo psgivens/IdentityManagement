@@ -188,6 +188,9 @@ type RolesTests2 ()  =
       use testResources = new Composition.TestSystemResources ()
       let harness = ``Test: Create role_ add user_ update title`` testResources
       harness.Gherkin ()
+      harness.Preconditions ()
+      harness.ActionUnderTest ()
+      harness.VerifyState ()
 
 
     [<Fact>]
