@@ -64,9 +64,15 @@ module Composition =
     type TestSystemResources () = 
         let system = Configuration.defaultConfig () |> System.create "sample-system"
         let connection = getDbConnection ()
+        let persistence = createPersistenceLayer connection
+        let actorGroups = composeActors persistence system
+        let connectionOptions = getDbContextOptions connection
+
         
         member this.System = system
-        member this.Connection = connection
+        member this.ConnectionOptions = connectionOptions
+        member this.Persistence = persistence
+        member this.ActorGroups = actorGroups
 
         member this.TermateActors () = 
             this.System.Terminate ()
@@ -76,4 +82,4 @@ module Composition =
         interface IDisposable with
             member this.Dispose () = 
                 this.TermateActors ()
-                this.Connection.Dispose ()               
+                connection.Dispose ()               

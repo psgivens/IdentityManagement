@@ -13,6 +13,7 @@
     <Compile Include="src/UsersTests.fs" />
     <Compile Include="src/GroupsTests.fs" />
     <Compile Include="src/RolesTests.fs" />
+    <Compile Include="src/RolesTests2.fs" />
     <Compile Include="src/Template.fs" />
     <Compile Include="src/Program.fs" />
   </ItemGroup>

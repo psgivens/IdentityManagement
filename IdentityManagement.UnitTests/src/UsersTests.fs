@@ -59,12 +59,10 @@ type UsersTests ()  =
        *** Create the Actor system *** 
        *******************************)      
       use testResources = new Composition.TestSystemResources ()
-      let persistence = Composition.createPersistenceLayer testResources.Connection
-      let actorGroups = composeActors persistence testResources.System
 
       let userCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 
-          testResources.System "user_management_command" actorGroups.UserManagementActors
+          testResources.System "user_management_command" testResources.ActorGroups.UserManagementActors
 
 
       (**************************
@@ -85,7 +83,7 @@ type UsersTests ()  =
        *** Evolve the events ***
        *************************)
       let events = 
-        persistence.userManagementStore.GetEvents streamId
+        testResources.Persistence.userManagementStore.GetEvents streamId
         |> List.map (fun env -> env.Item) 
 
       let state = 
