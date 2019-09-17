@@ -61,13 +61,15 @@ module Composition =
         }
         
         persistence
-    type TestSystemResources () = 
+    type TestSystemResources (connection,persistence:Persistence) = 
         let system = Configuration.defaultConfig () |> System.create "sample-system"
-        let connection = getDbConnection ()
-        let persistence = createPersistenceLayer connection
         let actorGroups = composeActors persistence system
         let connectionOptions = getDbContextOptions connection
 
+        new () = 
+            let connection = getDbConnection ()
+            let persistence = createPersistenceLayer connection
+            new TestSystemResources (connection, persistence)
         
         member this.System = system
         member this.ConnectionOptions = connectionOptions

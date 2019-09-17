@@ -489,16 +489,17 @@ type RolesTests2 ()  =
       (******************************* 
        *** Create the Actor system *** 
        *******************************)      
-      use testResources = new Composition.TestSystemResources ()
+      let connection = Composition.getDbConnection ()
+      
       let persistence = { 
-        testResources.Persistence with 
+        Composition.createPersistenceLayer connection with 
           roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
 
-      let actorGroups = composeActors persistence testResources.System
+      use testResources = new Composition.TestSystemResources (connection,persistence)
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
-          testResources.System "role_management_command" actorGroups.RoleManagementActors
+          testResources.System "role_management_command" testResources.ActorGroups.RoleManagementActors
 
       (**************************
        *** Perform the action ***
@@ -568,18 +569,18 @@ type RolesTests2 ()  =
 
       (******************************* 
        *** Create the Actor system *** 
-       *******************************)      
-      use testResources = new Composition.TestSystemResources ()
-
+       *******************************)
+      let connection = Composition.getDbConnection ()
+      
       let persistence = { 
-        testResources.Persistence with 
+        Composition.createPersistenceLayer connection with 
           roleManagementStore = InMemoryEventStore<RoleManagementEvent> (existingEventStore) }
 
-      let actorGroups = composeActors persistence testResources.System
+      use testResources = new Composition.TestSystemResources (connection,persistence)
 
       let roleCommandRequestReplyCanceled = 
         RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
-          testResources.System "role_management_command" actorGroups.RoleManagementActors
+          testResources.System "role_management_command" testResources.ActorGroups.RoleManagementActors
 
 
       (**************************
