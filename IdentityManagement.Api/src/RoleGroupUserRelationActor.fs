@@ -73,7 +73,7 @@ let spawn
         }
         loop ()
 
-    spawnOpt sys (name + "_RoleGroupUserActorActor") 
+    spawnOpt sys (name + "_RoleGroupUserActor") 
     <| aggregateActor
 
     <| [Akka.Routing.ConsistentHashingPool (10, fun msg -> 

@@ -19,7 +19,7 @@ open IdentityManagement.Data.Models
 open Microsoft.Data.Sqlite
 open Microsoft.EntityFrameworkCore
 
-type ``Test: Create role_ add user to group_ add group to role`` (testResources:Composition.TestSystemResources) =
+type ``Create role, add group to role, add user to group`` (testResources:Composition.TestSystemResources) =
     (*********************************************
      *** Create some sample data for the test  ***
      *********************************************)
@@ -50,8 +50,7 @@ type ``Test: Create role_ add user to group_ add group to role`` (testResources:
 
     (******************************* 
      *** Create the Actor system *** 
-     *******************************)     
-    
+     *******************************)      
     let userCommandRequestReplyCanceled = 
       RequestReplyActor.spawnRequestReplyActor<UserManagementCommand, UserManagementEvent> 
         testResources.System "user_management_command" testResources.ActorGroups.UserManagementActors
@@ -64,10 +63,14 @@ type ``Test: Create role_ add user to group_ add group to role`` (testResources:
       RequestReplyActor.spawnRequestReplyActor<RoleManagementCommand, RoleManagementEvent> 
         testResources.System "role_management_command" testResources.ActorGroups.RoleManagementActors
 
+    (******************************* 
+     *** Utility functions       *** 
+     *******************************)      
     let processCommand (rra:IActorRef) streamId = 
       Tests.envelop streamId
       >> rra.Ask 
       >> runWaitAndIgnore 
+
 
     member this.Gherkin () = 
       (*********************************************
@@ -81,12 +84,10 @@ type ``Test: Create role_ add user to group_ add group to role`` (testResources:
       |> RoleGherkin.Then (expectState (Some (expectedState)))
 
 
-
     member this.Preconditions () = 
       (*********************************
        *** Initialize pre-conditions ***
        *********************************)
-
       let processUserCommand = 
         processCommand userCommandRequestReplyCanceled userStreamId
       [ UserManagementCommand.Create userDetails ]
@@ -94,22 +95,28 @@ type ``Test: Create role_ add user to group_ add group to role`` (testResources:
 
       let processGroupCommand = 
         processCommand groupCommandRequestReplyCanceled groupStreamId
-      [ GroupManagementCommand.Create groupName
-        GroupManagementCommand.AddUser userId ]
+
+      [ GroupManagementCommand
+          .Create groupName ]
       |> List.iter processGroupCommand
 
-
-
-    member this.ActionUnderTest () = 
-      (**************************
-       *** Perform the action ***
-       **************************)
-      let processRoleCommand = processCommand roleCommandRequestReplyCanceled roleStreamId
-        
+      let processRoleCommand = processCommand roleCommandRequestReplyCanceled roleStreamId        
       [ RoleManagementCommand
           .Create (roleName, externalRoleId)
         AddPrincipal groupId ]
       |> List.iter processRoleCommand
+      
+
+    member this.ActionUnderTest () = 
+      (**************************
+       *** Perform the action ***
+       **************************)    
+      let processGroupCommand = 
+        processCommand groupCommandRequestReplyCanceled groupStreamId
+ 
+      [ GroupManagementCommand
+          .AddUser userId ]
+      |> List.iter processGroupCommand
 
 
     member this.VerifyState () =
@@ -139,6 +146,7 @@ type ``Test: Create role_ add user to group_ add group to role`` (testResources:
       testResources.TermateActors ()
 
       use context = new IdentityManagementDbContext (testResources.ConnectionOptions)
+
       let mapping = query {
         for m in context.RolePrincipalMaps do
         where (m.PrincipalId = userIdGuid && m.RoleId = entityId)
@@ -148,14 +156,3 @@ type ``Test: Create role_ add user to group_ add group to role`` (testResources:
 
       Assert.Equal (true, not (isNull mapping))
 
-
-
-type RolesTests3 ()  =
-    [<Fact>]
-    member this.``Create role_ add user to group_ add group to role`` () =
-      use testResources = new Composition.TestSystemResources ()
-      let harness = ``Test: Create role_ add user to group_ add group to role`` testResources
-      harness.Gherkin ()
-      harness.Preconditions ()
-      harness.ActionUnderTest ()
-      harness.VerifyState ()
