@@ -16,6 +16,11 @@ $domain = "http://localhost:32081"
 
 
 # Cluster-Ip of node port
+$domain="http://10.152.183.53:2080"
+
+$domain="http://10.152.183.53:32080"
+
+
 $domain="http://10.152.183.157:2080"
 
 $domain="http://10.152.183.157"
@@ -63,6 +68,8 @@ $contextHeaders = @{
 $domain="http://pomodoro.poms"
 
 $domain="http://localhost"
+
+$domain="http://10.152.183.53:32080"
 
 Invoke-WebRequest `
   -Method GET `
