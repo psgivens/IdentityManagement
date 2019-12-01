@@ -1,0 +1,4 @@
+{
+  "dockerfile": "IdentityManagement/watch.Dockerfile",
+  "imagesuffix": "api-service"
+}

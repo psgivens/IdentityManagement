@@ -1,12 +1,12 @@
-FROM pomodoro-dotnet-stage AS build-env
+FROM dotnet-stage AS build-env
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
-COPY *.fsproj ./
+COPY IdentityManagement.Api/*.fsproj ./
 RUN dotnet restore
 
-# copy everything else and build
 COPY . ./
+# copy everything else and build
 RUN dotnet publish -c Debug -o out
 
 # build runtime image

@@ -40,10 +40,6 @@ module Utils =
 type UsersTests ()  =
 
     [<Fact>]
-    member this.``xxx`` () =
-        Assert.Equal ("one", "two")
-
-    [<Fact>]
     member this.``Add users`` () =
         let pingResponse = 
           Http.RequestString (

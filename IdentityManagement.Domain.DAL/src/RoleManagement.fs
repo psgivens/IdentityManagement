@@ -62,7 +62,7 @@ let persist (options:DbContextOptions<IdentityManagementDbContext>) (userId:User
 
         item.Principals |> List.iter (role |> addMember)
         context.Roles.Add role |> ignore
-        printfn "Persist mh: (%s)" item.Name
+        printfn "Persist new: (%s)" item.Name
     | _, Option.None -> 
         context.Roles.Remove entity |> ignore        
     | _, Some(item) -> 
@@ -70,6 +70,7 @@ let persist (options:DbContextOptions<IdentityManagementDbContext>) (userId:User
 
         entity.Members.Clear ()
         item.Principals |> List.iter (entity |> addMember)
+        printfn "Persist update: (%s)" item.Name
     context.SaveChanges () |> ignore
     
 let execQuery (q:IdentityManagementDbContext -> System.Linq.IQueryable<'a>) =

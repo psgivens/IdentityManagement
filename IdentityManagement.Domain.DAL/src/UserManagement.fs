@@ -22,13 +22,14 @@ let persist (options:DbContextOptions<IdentityManagementDbContext>) (userId:User
                 LastName = details.LastName,
                 Email=details.Email
             )) |> ignore
-        printfn "Persist mh: (%s)" details.Email
+        printfn "Persist new: (%s)" details.Email
     | _, Option.None -> context.Users.Remove entity |> ignore        
     | _, Some(item) -> 
         let details = item.Details
         entity.FirstName <- details.FirstName
         entity.LastName <- details.LastName
         entity.Email <- details.Email 
+        printfn "Persist update: (%s)" details.Email
     context.SaveChanges () |> ignore
     
 let execQuery (q:IdentityManagementDbContext -> System.Linq.IQueryable<'a>) =

@@ -6,12 +6,13 @@ Identity Management for infrastructure
 In a common folder, fetch the following
 * Architecture
 * IdentityManagement
+* Common.FSharp
 
-Point the variable $ENV:POMODORO_REPOS at that folder.
+Point the variable $ENV:BESPIN_REPOS at that folder.
 
 Add the values to your $ENV:PATH
-* $ENV:POMODORO_REPOS/Architecture/scripts
-* $ENV:POMODORO_REPOS/IdentityManagement/scripts
+* $ENV:BESPIN_REPOS/Architecture/scripts
+* $ENV:BESPIN_REPOS/IdentityManagement/scripts
 
 I also had to set the env:MSBuildSDKsPath in profile.ps1
 
@@ -25,7 +26,7 @@ Some of these may have been met on your local machine if you are working with ot
 services. You'll need `dotnet-stage` to build service images. You can build that with 
 this:
 
-    Publish-CoreDbgStage.psq
+    Publish-CoreDbgStage.ps1
 
 Microk8s requires iptables to be setup as per thier [docs](https://microk8s.io/docs/)
 
@@ -40,12 +41,12 @@ Microk8s dns to be enabled to reach out to nuget.org and other build activities
 You can use these to publish to local kubernetes registry
     
     Publish-CoreDbImage.ps1
-    Publish-MicroService.ps1 -ServiceName iam-id-mgmt 
+    Publish-MicroService.ps1 -ServiceName IdentityManagement
 
 # Start service
 The following will start everything you need. 
 
-    Start-MicroService -ServiceName iam-id-mgmt -Part all -Cold $true -NodePort 2020
+    Start-MicroService -ServiceName IdentityManagement -Part all -Cold $true -NodePort 2020
 
 There are a lot of moving parts. You can inspect for the following. 
 
