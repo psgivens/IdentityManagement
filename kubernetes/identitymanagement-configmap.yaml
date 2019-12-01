@@ -1,0 +1,7 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: identitymanagement-dbconfigs
+data:
+  IdentityManagementDbContext.connectionstring: |
+    User ID=samplesam;Password=Password1;Host=identitymanagement-db-0.identitymanagement-db;Port=5432;Database=IdentityManagementDb;Pooling=true;

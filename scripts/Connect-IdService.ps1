@@ -3,10 +3,10 @@
 # kubectl exec -it iam-im-single -- /bin/bash
 
 
-Write-Host "Connecting with iam-id-mgmt-api-service"
+Write-Host "Connecting with identitymanagement-api-service"
 kubectl run `
     -it temp-identitymanagement `
-    --image="localhost:32000/iam-id-mgmt-api-service" `
+    --image="localhost:32000/identitymanagement-api-service" `
     --rm `
     --restart=Never -- /bin/bash
 

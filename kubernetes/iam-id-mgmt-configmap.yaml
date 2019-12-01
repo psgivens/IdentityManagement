@@ -1,7 +1,0 @@
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: iam-id-mgmt-dbconfigs
-data:
-  IdentityManagementDbContext.connectionstring: |
-    User ID=samplesam;Password=Password1;Host=iam-id-mgmt-db-0.iam-id-mgmt-db;Port=5432;Database=IdentityManagementDb;Pooling=true;

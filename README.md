@@ -46,7 +46,11 @@ You can use these to publish to local kubernetes registry
 # Start service
 The following will start everything you need. 
 
-    Start-MicroService -ServiceName IdentityManagement -Part all -Cold $true -NodePort 2020
+    Start-MicroService -K8s -ServiceName IdentityManagement -Part all -Cold $true -NodePort 2020
+
+To tear down completely.
+
+    Stop-MicroService -K8s -ServiceName IdentityManagement -Cold $true -Part all    
 
 There are a lot of moving parts. You can inspect for the following. 
 
@@ -74,15 +78,15 @@ Inspect your environment
 After `Start-MicroService` 
 
     persistentvolume/persistent-volume-pgsql-identity created
-    onfigmap/iam-id-mgmt-dbconfigs created
-    ervice/iam-id-mgmt-db created
-    statefulset.apps/iam-id-mgmt-db created
+    onfigmap/identitymanagement-dbconfigs created
+    ervice/identitymanagement-db created
+    statefulset.apps/identitymanagement-db created
     Wait for the service to become online...
     phase: Pending [.. omitting extra 'Pending's]
     phase: Running
     System ready
     Initializing the database with 'dotnet ef database update'
-    job.batch/iam-id-mgmt-job-initialize-db created
+    job.batch/identitymanagement-job-initialize-db created
     Wait for database initialization job to finish...
     phase: Pending [.. omitting extra 'Pending's]
     phase: Running [.. omitting extra 'Running's]    
@@ -90,11 +94,11 @@ After `Start-MicroService`
     Applying migration '20190505004232_Initial_Database'.
     Done.
     Deleting job
-    job.batch "iam-id-mgmt-job-initialize-db" deleted
-    ervice/iam-id-mgmt-db-service-nodeport created
-    eplicaset.apps/iam-id-mgmt-api-service created
-    ervice/iam-id-mgmt-api-service-public created
-    ervice/iam-id-mgmt-api-service-nodeport created
+    job.batch "identitymanagement-job-initialize-db" deleted
+    ervice/identitymanagement-db-service-nodeport created
+    eplicaset.apps/identitymanagement-api-service created
+    ervice/identitymanagement-api-service-public created
+    ervice/identitymanagement-api-service-nodeport created
 
 If any `phase` lasts longer than a minute, inspect the service. 
 

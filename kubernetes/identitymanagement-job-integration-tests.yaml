@@ -1,23 +1,23 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: iam-id-mgmt-job-integration-tests
+  name: identitymanagement-job-integration-tests
 spec:
   template:
     metadata:
       labels:
-        app: iam-id-mgmt-job-integration-tests
+        app: identitymanagement-job-integration-tests
     spec:
       restartPolicy: OnFailure
       containers:
       - name: integration-tests
-        image: localhost:32000/iam-id-mgmt-api-service
+        image: localhost:32000/identitymanagement-api-service
         workingDir: /app/IdentityManagement/IdentityManagement.UnitTests
         command: ["dotnet"]
         args: ["test"]
         env: 
         - name: targetDomainForTests
-          value: http://iam-id-mgmt-api-service-public:2080
+          value: http://identitymanagement-api-service-public:2083
         volumeMounts:
         - name: datadbconfig
           mountPath: /app/IdentityManagement/IdentityManagement.UnitTests/config
@@ -25,4 +25,4 @@ spec:
       volumes:
       - name: datadbconfig
         configMap:
-          name: iam-id-mgmt-dbconfigs
+          name: identitymanagement-dbconfigs

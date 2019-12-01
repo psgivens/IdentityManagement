@@ -4,31 +4,31 @@ items:
   - kind: Service
     apiVersion: v1
     metadata:
-      name: iam-id-mgmt-db
+      name: identitymanagement-db
     spec:
       clusterIP: None
       selector:
-        app: iam-id-mgmt-db
+        app: identitymanagement-db
       ports:
       - name: pgsql
         port: 5432
   - kind: StatefulSet
     apiVersion: apps/v1
     metadata:
-      name: iam-id-mgmt-db
+      name: identitymanagement-db
     spec:
-      serviceName: iam-id-mgmt-db
+      serviceName: identitymanagement-db
       selector:
         matchLabels:
-          app: iam-id-mgmt-db
+          app: identitymanagement-db
       replicas: 1
       template:
         metadata:
           labels:
-            app: iam-id-mgmt-db
+            app: identitymanagement-db
         spec:            
           containers:
-          - name: iam-id-mgmt-db
+          - name: identitymanagement-db
             image: localhost:32000/postgres:alpine
             env:
             - name: POSTGRES_PASSWORD

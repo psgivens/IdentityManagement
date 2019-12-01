@@ -1,6 +1,34 @@
 #!/usr/bin/pwsh
 
+
+
 sudo iptables -P FORWARD ACCEPT
+
+
+# This is verified to work on December 1st, 2019
+$domain = "http://localhost:32080"
+Write-Host $domain
+# Default route
+Invoke-WebRequest `
+  -Method GET `
+  -Uri "$domain/ping" 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 kubectl run --generator=run-pod/v1 curl --image tutum/curl -l app=curl 
@@ -16,10 +44,10 @@ $domain = "http://localhost:32081"
 
 
 # Cluster-Ip of node port
+$ClusterIP="http://10.152.183.15"
+$domain="$ClusterIP`:32080"
+
 $domain="http://10.152.183.53:2080"
-
-$domain="http://10.152.183.53:32080"
-
 
 $domain="http://10.152.183.157:2080"
 
@@ -71,6 +99,8 @@ $domain="http://localhost"
 
 $domain="http://10.152.183.53:32080"
 
+$domain="http://localhost:32080"
+
 Invoke-WebRequest `
   -Method GET `
   -Uri $domain/foo
@@ -99,10 +129,20 @@ $domain = "http://10.152.183.202:32080"
 $domain = "http://10.152.183.90:2080"
 
 
-$domain = "http://localhost:32080"
 
 $domain = "http://localhost:32081"
 
+
+
+$ClusterIP="http://10.152.183.189"
+$domain="$ClusterIP`:32080"
+
+
+
+
+
+
+$domain = "http://localhost:32080"
 Write-Host $domain
 # Default route
 Invoke-WebRequest `

@@ -1,11 +1,11 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: iam-id-mgmt-db
+  name: identitymanagement-db
 spec:
   clusterIP: None
   selector:
-    app: iam-id-mgmt-db
+    app: identitymanagement-db
   ports:
   - name: pgsql
     port: 5432

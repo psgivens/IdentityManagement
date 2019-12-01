@@ -10,4 +10,4 @@ spec:
       - path: /
         backend:
           serviceName: iam-identitymanagement-service-public
-          servicePort: 2080
+          servicePort: 2083
