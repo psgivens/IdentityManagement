@@ -4,17 +4,19 @@ Identity Management for infrastructure
 # Environment setup 
 
 In a common folder, fetch the following
+
 * Architecture
 * IdentityManagement
 * Common.FSharp
 
-Point the variable $ENV:BESPIN_REPOS at that folder.
+Point the variable `$ENV:BESPIN_REPOS` at that folder.
 
-Add the values to your $ENV:PATH
+Add the values to your `$ENV:PATH`
+
 * $ENV:BESPIN_REPOS/Architecture/scripts
 * $ENV:BESPIN_REPOS/IdentityManagement/scripts
 
-I also had to set the env:MSBuildSDKsPath in profile.ps1
+If `dotnet` commands are complaining about the sdk, consider setting  the `env:MSBuildSDKsPath` in profile.ps1
 
     $env:MSBuildSDKsPath = "/usr/share/dotnet/sdk/2.2.401/Sdks/"
 
@@ -22,9 +24,7 @@ I also had to set the env:MSBuildSDKsPath in profile.ps1
 
 
 ## Prerequisites
-Some of these may have been met on your local machine if you are working with other 
-services. You'll need `dotnet-stage` to build service images. You can build that with 
-this:
+Some of these may have been met on your local machine if you are working with other services. You'll need `dotnet-stage` to build service images. You can build that with this:
 
     Publish-CoreDbgStage.ps1
 
@@ -104,17 +104,16 @@ If any `phase` lasts longer than a minute, inspect the service.
 
 # Testing and re-building
 
-I've made a change to source code, how do I tear down, rebuild, and try again in the quickest
-amount of time? 
+I've made a change to source code, how do I tear down, rebuild, and try again in the quickest amount of time? Here are my considerations.
 
-Azure - Network: rebuild, redeploy, maybe have to check in. 
-Microk8st - rebuild, redeploy, retest
-Docker - mount file system locally, maybe we don't need to redeploy, just rebuild
-Locally - Maybe better than docker in that I am not in a container. Maybe worse, because I am 
-          not on a network with everything else. Tools must be installed on my machine. I also
-          have support for my local dev tools. 
+| Env                | Description         |
+| ----------------- | ------------------------- |
+| Azure           | Network; rebuild, redeploy, maybe have to check in. |
+| Microk8st | rebuild, redeploy, retest |
+| Docker        | mount file system locally, maybe we don't need to redeploy, just rebuild |
+| Locally        | Maybe better than docker in that I am not in a container. Maybe worse, because I am not on a network with everything else. Tools must be installed on my machine. I also have support for my local dev tools. |
 
-Conclusion: Locally using a database node port. 
+**Conclusion**: Locally using a database node port. 
 
 # Beware
 
@@ -126,5 +125,5 @@ Run-IdMgmtTests
 
 # Build performance
 
-https://stackoverflow.com/questions/45763755/dotnet-core-2-long-build-time-because-of-long-restore-time
+If you are curious about improving build performance, consider reading [dotnet-core-2-long-build-time-because-of-long-restore-time](https://stackoverflow.com/questions/45763755/dotnet-core-2-long-build-time-because-of-long-restore-time)
 
