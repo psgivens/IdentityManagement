@@ -12,11 +12,11 @@
     <Compile Include="src/Gherkin.fs" />
     <Compile Include="src/UsersTests.fs" />
     <Compile Include="src/GroupsTests.fs" />
-    <Compile Include="src/RoleTest: Create role, add group to role, add user to group.fs" />
-    <Compile Include="src/RoleTest: Create role, add user to group, add group to role.fs" />
-    <Compile Include="src/RoleTest: Create role, add user, update title.fs" />
-    <Compile Include="src/RoleTest: Delete role.fs" />
-    <Compile Include="src/RoleTest: Remove user from a role.fs" />
+    <Compile Include="src/RoleTest__Create_role__add_group_to_role__add_user_to_group.fs" />
+    <Compile Include="src/RoleTest__Create_role__add_user_to_group__add_group_to_role.fs" />
+    <Compile Include="src/RoleTest__Create_role__add_user__update_title.fs" />
+    <Compile Include="src/RoleTest__Delete_role.fs" />
+    <Compile Include="src/RoleTest__Remove_user_from_a_role.fs" />
     <Compile Include="src/RolesTests.fs" />    
     <Compile Include="src/Program.fs" />
   </ItemGroup>
