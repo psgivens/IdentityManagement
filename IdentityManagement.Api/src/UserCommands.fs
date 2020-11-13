@@ -33,7 +33,7 @@ let private dtoToUser (dto:UserDto) =
 
 let private tellActor = sendEnvelope actorGroups.UserManagementActors.Tell 
 
-let postUser (dto:NewUserDto)=  
+let postUser (dto:NewUserDto) =  
   let newUserId = StreamId.create ()
 
   let commandToActor = 
